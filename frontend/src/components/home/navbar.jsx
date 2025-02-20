@@ -12,11 +12,13 @@ const Navbar = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const dropdownRef = useRef(null);
+  const categoryDropdownRef = useRef(null);
 
   // Handle clicking outside to close dropdowns
   useEffect(() => {
     function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target) &&
+          categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target)) {
         setActiveDropdown(null);
       }
     }
@@ -70,12 +72,51 @@ const Navbar = () => {
         { name: 'Commercial'}
       ]
     },
-
+    'Property': {
+      icon: <Building2 className="h-5 w-5" />,
+      items: [
+        { name: 'Apartments' },
+        { name: 'Houses' },
+        { name: 'Land' }
+      ]
+    },
+    'Electronics': {
+      icon: <Laptop className="h-5 w-5" />,
+      items: [
+        { name: 'Computers' },
+        { name: 'Phones' },
+        { name: 'Tablets' }
+      ]
+    },
+    'Home & Garden': {
+      icon: <Sofa className="h-5 w-5" />,
+      items: [
+        { name: 'Furniture' },
+        { name: 'Appliances' },
+        { name: 'Garden' }
+      ]
+    },
+    'Fashion': {
+      icon: <Shirt className="h-5 w-5" />,
+      items: [
+        { name: 'Clothing' },
+        { name: 'Accessories' },
+        { name: 'Shoes' }
+      ]
+    },
+    'Jobs': {
+      icon: <Briefcase className="h-5 w-5" />,
+      items: [
+        { name: 'Full-time' },
+        { name: 'Part-time' },
+        { name: 'Casual' }
+      ]
+    }
   };
 
   return (
     <>
-      <nav className="w-full bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm fixed top-0 z-50">
+      <nav className="w-full bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm fixed top-0 z-50">
         {/* Main Navbar Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -109,7 +150,7 @@ const Navbar = () => {
               <button className="group relative px-7 py-2.5 rounded-full bg-white
                 transform hover:shadow-lg active:scale-95 transition-all duration-200
                 focus:outline-none focus:ring-2 focus:ring-gray-800 focus:ring-offset-2">
-                {/* Animated gradient border - Updated to black/gray */}
+                {/* Animated gradient border */}
                 <div className="absolute inset-0 rounded-full bg-gradient-to-r from-gray-900 via-gray-600 to-gray-900 animate-gradient"></div>
                 <div className="absolute inset-[2px] rounded-full bg-white"></div>
                 <div className="relative flex items-center space-x-1">
@@ -208,19 +249,20 @@ const Navbar = () => {
         {/* Categories Bar - Redesigned */}
         <div className="border-t border-gray-100 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className=" md:py-0 relative" ref={dropdownRef}>
-              <div className="flex flex-col md:flex-row md:items-center md:space-x-6 md:h-8">
+            <div className="py-2 md:py-0 relative">
+              <div className="flex flex-col md:flex-row md:items-center md:space-x-6 md:h-10">
                 {/* All Categories Dropdown - Improved Styling */}
-                <div className="relative w-full md:w-auto mb-3 md:mb-0">
+                <div className="relative w-full md:w-auto mb-3 md:mb-0" ref={categoryDropdownRef}>
                   <button
                     onClick={() => toggleDropdown('categories')}
-                    className="flex items-center justify-between md:justify-start w-full md:w-auto px-4 py-2 md:py-0
-                      space-x-2 text-gray-700 hover:text-gray-900 text-sm font-medium
-                      bg-gray-50 md:bg-transparent rounded-lg md:rounded-none"
+                    className={`flex items-center justify-between md:justify-start w-full md:w-auto px-4 py-2 md:py-2
+                      space-x-2 text-gray-700 hover:text-gray-900 text-sm font-medium rounded-md
+                      ${activeDropdown === 'categories' ? 'bg-gray-100' : 'bg-gray-50'} 
+                      hover:bg-gray-100 transition-colors duration-200`}
                   >
                     <div className="flex items-center space-x-2">
-                      <ShoppingBag className="h-3 w-3 text-gray-600" />
-                      <span className='text-xs'>ALL CATEGORIES</span>
+                      <ShoppingBag className="h-4 w-4 text-gray-600" />
+                      <span className="text-xs font-semibold tracking-wide">ALL CATEGORIES</span>
                     </div>
                     <ChevronDown className={`h-3 w-3 transition-transform duration-200 
                       ${activeDropdown === 'categories' ? 'rotate-180' : ''}`} />
@@ -228,25 +270,38 @@ const Navbar = () => {
 
                   {/* Categories Mega Dropdown - Redesigned */}
                   {activeDropdown === 'categories' && (
-                    <div className="absolute top-full left-0 mt-2 w-full md:w-[250px] bg-white shadow-xl 
-                      border border-gray-200 rounded-lg z-50 p-6 animate-fadeIn">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="absolute top-full left-0 mt-2 w-full md:w-[600px] bg-white shadow-xl 
+                      border border-gray-200 rounded-lg z-50 p-4 md:p-6 animate-fadeIn">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                         {Object.entries(categories).map(([category, { icon, items }]) => (
-                          <div key={category} className="space-y-4">
-                            <div className="flex items-center space-x-3 pb-2 border-b border-gray-100">
-                              <div className="p-2 bg-gray-50  rounded-lg">{icon}</div>
-                              <span className="font-medium text-sm text-gray-800">{category}</span>
+                          <div key={category} className="space-y-3 group">
+                            <div className="flex items-center space-x-3 pb-2 border-b border-gray-100
+                                           group-hover:border-gray-300 transition-colors duration-200">
+                              <div className="p-2 bg-gray-50 rounded-lg group-hover:bg-gray-100 transition-colors duration-200">
+                                {icon}
+                              </div>
+                              <span className="font-medium text-sm text-gray-800 group-hover:text-gray-900 transition-colors duration-200">
+                                {category}
+                              </span>
                             </div>
-                            <div className="space-y-3">
+                            <div className="space-y-2.5 pl-2">
                               {items.map((item) => (
-                                <div key={item.name} className="space-y-2">
-                                  <a href="#" className="text-xs  text-gray-700 hover:text-gray-900 
-                                    transition-colors duration-200">
-                                    {item.name}
-                                  </a>
-                       
-                                </div>
+                                <a 
+                                  key={item.name} 
+                                  href="#" 
+                                  className="block text-xs text-gray-600 hover:text-gray-900 hover:font-medium
+                                         transition-all duration-200 transform hover:translate-x-1"
+                                >
+                                  {item.name}
+                                </a>
                               ))}
+                              <a 
+                                href="#" 
+                                className="block text-xs text-gray-900/80 hover:text-black font-medium
+                                       transition-colors duration-200 pt-1"
+                              >
+                                View all {category.toLowerCase()} →
+                              </a>
                             </div>
                           </div>
                         ))}
@@ -256,23 +311,39 @@ const Navbar = () => {
                 </div>
 
                 {/* Popular Categories - Mobile Responsive */}
-                <div className="md:flex hidden  flex-wrap md:flex-nowrap gap-3 md:gap-6 md:items-center">
-                  <a href="#" className="text-xs text-gray-600 hover:text-gray-900 transition-colors duration-200 
-                    flex items-center space-x-1.5 bg-gray-50 md:bg-transparent px-3 py-2 md:p-0 rounded-full md:rounded-none">
-                    <Car className="h-3.5 w-3.5" />
-                    <span>Cars</span>
-                  </a>
-                  <a href="#" className="text-xs text-gray-600 hover:text-gray-900 transition-colors duration-200 
-                    flex items-center space-x-1.5 bg-gray-50 md:bg-transparent px-3 py-2 md:p-0 rounded-full md:rounded-none">
-                    <Truck className="h-3.5 w-3.5" />
-                    <span>Commercial</span>
-                  </a>
-                  <a href="#" className="text-xs text-gray-600 hover:text-gray-900 transition-colors duration-200 
-                    flex items-center space-x-1.5 bg-gray-50 md:bg-transparent px-3 py-2 md:p-0 rounded-full md:rounded-none">
-                    <CarFront className="h-3.5 w-3.5" />
-                    <span>SUVs</span>
-                  </a>
-                
+                <div className="overflow-x-auto scrollbar-hide">
+                  <div className="flex items-center space-x-4 pb-2 md:pb-0 md:h-full">
+                    <a href="#" className="text-xs whitespace-nowrap text-gray-600 hover:text-gray-900 transition-colors duration-200 
+                      flex items-center space-x-1.5 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full">
+                      <Car className="h-3.5 w-3.5" />
+                      <span>Cars</span>
+                    </a>
+                    <a href="#" className="text-xs whitespace-nowrap text-gray-600 hover:text-gray-900 transition-colors duration-200 
+                      flex items-center space-x-1.5 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full">
+                      <Truck className="h-3.5 w-3.5" />
+                      <span>Commercial</span>
+                    </a>
+                    <a href="#" className="text-xs whitespace-nowrap text-gray-600 hover:text-gray-900 transition-colors duration-200 
+                      flex items-center space-x-1.5 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full">
+                      <CarFront className="h-3.5 w-3.5" />
+                      <span>SUVs</span>
+                    </a>
+                    <a href="#" className="text-xs whitespace-nowrap text-gray-600 hover:text-gray-900 transition-colors duration-200 
+                      flex items-center space-x-1.5 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full">
+                      <Laptop className="h-3.5 w-3.5" />
+                      <span>Electronics</span>
+                    </a>
+                    <a href="#" className="text-xs whitespace-nowrap text-gray-600 hover:text-gray-900 transition-colors duration-200 
+                      flex items-center space-x-1.5 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full">
+                      <Sofa className="h-3.5 w-3.5" />
+                      <span>Home & Garden</span>
+                    </a>
+                    <a href="#" className="text-xs whitespace-nowrap text-gray-600 hover:text-gray-900 transition-colors duration-200 
+                      flex items-center space-x-1.5 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full">
+                      <Briefcase className="h-3.5 w-3.5" />
+                      <span>Jobs</span>
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
@@ -281,18 +352,44 @@ const Navbar = () => {
       </nav>
 
       {/* Mobile Menu - Improved */}
-      <div className={`md:hidden fixed top-16 left-0 right-0 z-60 transition-all duration-300 ease-in-out ${
-        isMobileMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'
-      } overflow-hidden bg-white border-b border-gray-100 shadow-lg`}>
-        <div className="px-4 py-6 space-y-4">
-          <button className="w-full px-4 py-3 text-gray-700 font-medium rounded-lg
-            hover:bg-gray-50 active:bg-gray-100 transition-all duration-200 flex items-center justify-center">
-            <span className="mr-2">Login</span>
-          </button>
-          <button className="w-full px-4 py-3 text-white font-medium rounded-lg
-            bg-gray-800 hover:bg-gray-700 active:bg-gray-900 transition-all duration-200 flex items-center justify-center">
-            <span className="mr-2">SELL</span> <span className="text-lg">+</span>
-          </button>
+      <div className={`md:hidden fixed top-[180px] left-0 right-0 z-60 transition-all duration-300 ease-in-out ${
+        isMobileMenuOpen ? 'max-h-screen opacity-100 shadow-xl' : 'max-h-0 opacity-0'
+      } overflow-hidden bg-white border-b border-gray-100`}>
+        <div className="px-4 py-6 space-y-6">
+          {/* Mobile Login/Sell Buttons */}
+          <div className="grid grid-cols-2 gap-3">
+            <button className="w-full px-4 py-3 text-gray-700 font-medium rounded-lg
+              bg-gray-50 hover:bg-gray-100 active:bg-gray-200 transition-all duration-200 flex items-center justify-center">
+              <span>Login</span>
+            </button>
+            <button className="w-full px-4 py-3 text-white font-medium rounded-lg
+              bg-gray-800 hover:bg-gray-700 active:bg-gray-900 transition-all duration-200 flex items-center justify-center">
+              <span className="mr-1">SELL</span> <span className="text-lg">+</span>
+            </button>
+          </div>
+          
+          {/* Mobile Quick Links */}
+          <div className="pt-4 border-t border-gray-100">
+            <h3 className="text-sm font-semibold text-gray-500 mb-3">Quick Links</h3>
+            <div className="flex flex-wrap gap-2">
+              <a href="#" className="text-xs text-gray-600 hover:text-gray-900 px-3 py-1.5
+                rounded-full bg-gray-50 hover:bg-gray-100 transition-all duration-200">
+                Featured Items
+              </a>
+              <a href="#" className="text-xs text-gray-600 hover:text-gray-900 px-3 py-1.5
+                rounded-full bg-gray-50 hover:bg-gray-100 transition-all duration-200">
+                Today's Deals
+              </a>
+              <a href="#" className="text-xs text-gray-600 hover:text-gray-900 px-3 py-1.5
+                rounded-full bg-gray-50 hover:bg-gray-100 transition-all duration-200">
+                New Arrivals
+              </a>
+              <a href="#" className="text-xs text-gray-600 hover:text-gray-900 px-3 py-1.5
+                rounded-full bg-gray-50 hover:bg-gray-100 transition-all duration-200">
+                Customer Support
+              </a>
+            </div>
+          </div>
           
           {/* Mobile Category Links */}
           <div className="pt-4 border-t border-gray-100">
@@ -311,16 +408,16 @@ const Navbar = () => {
       </div>
 
       {/* Spacer for fixed navbar - Mobile responsive */}
-      <div className="h-[180px] md:h-[120px]"></div>
+      <div className="h-[180px] md:h-[125px]"></div>
 
       {/* CSS Animations */}
       <style jsx>{`
         @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-4px); }
+          from { opacity: 0; transform: translateY(-8px); }
           to { opacity: 1; transform: translateY(0); }
         }
         .animate-fadeIn {
-          animation: fadeIn 0.2s ease-out;
+          animation: fadeIn 0.25s ease-out;
         }
         @keyframes gradient {
           0% { background-position: 0% 50%; }
@@ -330,6 +427,15 @@ const Navbar = () => {
         .animate-gradient {
           background-size: 200% 200%;
           animation: gradient 3s ease infinite;
+        }
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .scrollbar-hide {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
         }
       `}</style>
     </>
