@@ -1,10 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronRight, Clock, MapPin, Heart } from 'lucide-react';
 import marketplaceData from '../../json/marketplace-categories.json';
+
+const CACHE_KEY = 'marketplaceData';
+const CACHE_EXPIRY = 5 * 60 * 1000; // 5 minutes in milliseconds
 
 const MarketplaceCategories = () => {
   const [hoveredCard, setHoveredCard] = useState(null);
   const [likedItems, setLikedItems] = useState(new Set());
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = () => {
+      const cachedData = localStorage.getItem(CACHE_KEY);
+      const cachedTimestamp = localStorage.getItem(`${CACHE_KEY}_timestamp`);
+
+      if (cachedData && cachedTimestamp) {
+        const age = Date.now() - parseInt(cachedTimestamp, 10);
+
+        if (age < CACHE_EXPIRY) {
+          setData(JSON.parse(cachedData));
+          return;
+        }
+      }
+
+      // Fresh data (if cache is missing or expired)
+      localStorage.setItem(CACHE_KEY, JSON.stringify(marketplaceData.categories));
+      localStorage.setItem(`${CACHE_KEY}_timestamp`, Date.now().toString());
+      setData(marketplaceData.categories);
+    };
+
+    fetchData();
+  }, []);
 
   const toggleLike = (itemTitle) => {
     setLikedItems(prev => {
@@ -20,7 +47,7 @@ const MarketplaceCategories = () => {
 
   return (
     <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-8 font-['Plus_Jakarta_Sans']">
-      {marketplaceData.categories.map((category) => (
+      {data.map((category) => (
         <div key={category.title} className="space-y-4">
           <div className="flex justify-between items-center">
             <div className="space-y-0.5">
@@ -36,7 +63,7 @@ const MarketplaceCategories = () => {
               <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
             </button>
           </div>
-          
+
           {/* Desktop grid view */}
           <div className="relative">
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 sm:gap-4 hidden sm:grid">
@@ -51,8 +78,8 @@ const MarketplaceCategories = () => {
                 />
               ))}
             </div>
-            
-            {/* Mobile horizontal scroll view with hidden scrollbar */}
+
+            {/* Mobile horizontal scroll view */}
             <div className="flex gap-3 overflow-x-auto pb-4 sm:hidden -mx-4 px-4 scroll-smooth scrollbar-hide">
               {category.items.map((item) => (
                 <div className="w-[280px] flex-shrink-0" key={item.title}>
@@ -126,8 +153,5 @@ const ProductCard = ({ item, hoveredCard, setHoveredCard, likedItems, toggleLike
     </div>
   </div>
 );
-
-// Add these styles to your global CSS file
-;
 
 export default MarketplaceCategories;
