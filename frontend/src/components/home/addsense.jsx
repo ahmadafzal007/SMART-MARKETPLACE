@@ -17,21 +17,15 @@ const SmartMartAd = () => {
   if (process.env.NODE_ENV !== 'production') {
     return (
       <div
-        style={{
-          width: '100%',
-          margin: '0 auto',
-          padding: '20px',
-          textAlign: 'center',
-          border: '1px dashed #ccc',
-        }}
+        className='mt-25 md:mt-12 w-6/7 text-center border-1'
       >
-        SmartMart Ad 
+        <img src="/demo-add.png" alt="Demo Ad" />
       </div>
     );
   }
 
   return (
-    <div style={{ width: '100%', margin: '0 auto' }}>
+    <div className='mt-25 md:mt-12 w-6/7 text-center border-1'>
       <ins
         className="adsbygoogle"
         style={{ display: 'block' }}

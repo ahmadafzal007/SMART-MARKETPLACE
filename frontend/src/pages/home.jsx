@@ -5,8 +5,8 @@ const Home = () => {
     return (
         <div>
             <Navbar/>
-            <div className='mt-15'>
-            <SmartMartAdd/>
+            <div className='flex justify-center'>
+            <SmartMartAdd/>          
             </div>
         </div>
     );
