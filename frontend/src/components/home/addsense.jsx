@@ -25,7 +25,7 @@ const SmartMartAd = () => {
           border: '1px dashed #ccc',
         }}
       >
-        SmartMart Ad (Test Mode)
+        SmartMart Ad 
       </div>
     );
   }
