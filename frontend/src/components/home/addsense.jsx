@@ -25,7 +25,8 @@ const SmartMartAd = () => {
   }
 
   return (
-    <div className='mt-25 md:mt-2 w-4/5 text-center border-1'
+    <div className='mt-0 md:mt-2 w-8/9 md:w-4/5 text-center border-1'
+
 >
       <ins
         className="adsbygoogle"
