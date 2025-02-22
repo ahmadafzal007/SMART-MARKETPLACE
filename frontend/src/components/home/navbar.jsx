@@ -14,16 +14,17 @@ const Navbar = () => {
   const dropdownRef = useRef(null);
   const categoryDropdownRef = useRef(null);
 
-  // Handle clicking outside to close dropdowns
+  // Handle clicking outside to close dropdowns and window resize check
   useEffect(() => {
     function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target) &&
-          categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target)) {
+      if (
+        dropdownRef.current && !dropdownRef.current.contains(event.target) &&
+        categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target)
+      ) {
         setActiveDropdown(null);
       }
     }
     
-    // Check if screen size is mobile
     const checkIfMobile = () => {
       setIsMobile(window.innerWidth < 768);
       if (window.innerWidth >= 768) {
@@ -44,11 +45,7 @@ const Navbar = () => {
   }, []);
 
   const toggleDropdown = (dropdown) => {
-    if (activeDropdown === dropdown) {
-      setActiveDropdown(null);
-    } else {
-      setActiveDropdown(dropdown);
-    }
+    setActiveDropdown(activeDropdown === dropdown ? null : dropdown);
   };
 
   const australianStates = [
@@ -116,6 +113,7 @@ const Navbar = () => {
 
   return (
     <>
+      {/* Fixed Top Navbar: Main content and Search/Location Bar */}
       <nav className="w-full bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm fixed top-0 z-50">
         {/* Main Navbar Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -150,7 +148,6 @@ const Navbar = () => {
               <button className="group relative px-7 py-2.5 rounded-full bg-white
                 transform hover:shadow-lg active:scale-95 transition-all duration-200
                 focus:outline-none focus:ring-2 focus:ring-gray-800 focus:ring-offset-2">
-                {/* Animated gradient border */}
                 <div className="absolute inset-0 rounded-full bg-gradient-to-r from-gray-900 via-gray-600 to-gray-900 animate-gradient"></div>
                 <div className="absolute inset-[2px] rounded-full bg-white"></div>
                 <div className="relative flex items-center space-x-1">
@@ -245,114 +242,10 @@ const Navbar = () => {
             </div>
           </div>
         </div>
-
-        {/* Categories Bar - Redesigned */}
-        <div className="border-t border-gray-100 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="py-2 md:py-0 relative">
-              <div className="flex flex-col md:flex-row md:items-center md:space-x-6 md:h-10">
-                {/* All Categories Dropdown - Improved Styling */}
-                <div className="relative w-full md:w-auto mb-3 md:mb-0" ref={categoryDropdownRef}>
-                  <button
-                    onClick={() => toggleDropdown('categories')}
-                    className={`flex items-center justify-between md:justify-start w-full md:w-auto px-4 py-2 md:py-2
-                      space-x-2 text-gray-700 hover:text-gray-900 text-sm font-medium rounded-md
-                      ${activeDropdown === 'categories' ? 'bg-gray-100' : 'bg-gray-50'} 
-                      hover:bg-gray-100 transition-colors duration-200`}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <ShoppingBag className="h-4 w-4 text-gray-600" />
-                      <span className="text-xs font-semibold tracking-wide">ALL CATEGORIES</span>
-                    </div>
-                    <ChevronDown className={`h-3 w-3 transition-transform duration-200 
-                      ${activeDropdown === 'categories' ? 'rotate-180' : ''}`} />
-                  </button>
-
-                  {/* Categories Mega Dropdown - Redesigned */}
-                  {activeDropdown === 'categories' && (
-                    <div className="absolute top-full left-0 mt-2 w-full md:w-[600px] bg-white shadow-xl 
-                      border border-gray-200 rounded-lg z-50 p-4 md:p-6 animate-fadeIn">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-                        {Object.entries(categories).map(([category, { icon, items }]) => (
-                          <div key={category} className="space-y-3 group">
-                            <div className="flex items-center space-x-3 pb-2 border-b border-gray-100
-                                           group-hover:border-gray-300 transition-colors duration-200">
-                              <div className="p-2 bg-gray-50 rounded-lg group-hover:bg-gray-100 transition-colors duration-200">
-                                {icon}
-                              </div>
-                              <span className="font-medium text-sm text-gray-800 group-hover:text-gray-900 transition-colors duration-200">
-                                {category}
-                              </span>
-                            </div>
-                            <div className="space-y-2.5 pl-2">
-                              {items.map((item) => (
-                                <a 
-                                  key={item.name} 
-                                  href="#" 
-                                  className="block text-xs text-gray-600 hover:text-gray-900 hover:font-medium
-                                         transition-all duration-200 transform hover:translate-x-1"
-                                >
-                                  {item.name}
-                                </a>
-                              ))}
-                              <a 
-                                href="#" 
-                                className="block text-xs text-gray-900/80 hover:text-black font-medium
-                                       transition-colors duration-200 pt-1"
-                              >
-                                View all {category.toLowerCase()} →
-                              </a>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Popular Categories - Mobile Responsive */}
-                <div className="overflow-x-auto scrollbar-hide">
-                  <div className="flex items-center space-x-4 pb-2 md:pb-0 md:h-full">
-                    <a href="#" className="text-xs whitespace-nowrap text-gray-600 hover:text-gray-900 transition-colors duration-200 
-                      flex items-center space-x-1.5 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full">
-                      <Car className="h-3.5 w-3.5" />
-                      <span>Cars</span>
-                    </a>
-                    <a href="#" className="text-xs whitespace-nowrap text-gray-600 hover:text-gray-900 transition-colors duration-200 
-                      flex items-center space-x-1.5 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full">
-                      <Truck className="h-3.5 w-3.5" />
-                      <span>Commercial</span>
-                    </a>
-                    <a href="#" className="text-xs whitespace-nowrap text-gray-600 hover:text-gray-900 transition-colors duration-200 
-                      flex items-center space-x-1.5 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full">
-                      <CarFront className="h-3.5 w-3.5" />
-                      <span>SUVs</span>
-                    </a>
-                    <a href="#" className="text-xs whitespace-nowrap text-gray-600 hover:text-gray-900 transition-colors duration-200 
-                      flex items-center space-x-1.5 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full">
-                      <Laptop className="h-3.5 w-3.5" />
-                      <span>Electronics</span>
-                    </a>
-                    <a href="#" className="text-xs whitespace-nowrap text-gray-600 hover:text-gray-900 transition-colors duration-200 
-                      flex items-center space-x-1.5 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full">
-                      <Sofa className="h-3.5 w-3.5" />
-                      <span>Home & Garden</span>
-                    </a>
-                    <a href="#" className="text-xs whitespace-nowrap text-gray-600 hover:text-gray-900 transition-colors duration-200 
-                      flex items-center space-x-1.5 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full">
-                      <Briefcase className="h-3.5 w-3.5" />
-                      <span>Jobs</span>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </nav>
 
-      {/* Mobile Menu - Improved */}
-      <div className={`md:hidden fixed top-[180px] left-0 right-0 z-60 transition-all duration-300 ease-in-out ${
+      {/* Mobile Menu - Adjusted top offset to appear below the fixed navbar */}
+      <div className={`md:hidden fixed top-[90px] left-0 right-0 z-60 transition-all duration-300 ease-in-out ${
         isMobileMenuOpen ? 'max-h-screen opacity-100 shadow-xl' : 'max-h-0 opacity-0'
       } overflow-hidden bg-white border-b border-gray-100`}>
         <div className="px-4 py-6 space-y-6">
@@ -407,8 +300,112 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Spacer for fixed navbar - Mobile responsive */}
-      <div className="h-[180px] md:h-[125px]"></div>
+      {/* Spacer for fixed navbar (height adjusted to match the fixed top navbar only) */}
+      <div className="h-[90px]"></div>
+
+      {/* Categories Bar (Non-fixed: scrolls with the page) */}
+      <div className="border-t mt-9 border-gray-100 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="py-2 md:py-0 relative">
+            <div className="flex flex-col md:flex-row md:items-center md:space-x-6 md:h-10">
+              {/* All Categories Dropdown */}
+              <div className="relative w-full md:w-auto mb-3 md:mb-0" ref={categoryDropdownRef}>
+                <button
+                  onClick={() => toggleDropdown('categories')}
+                  className={`flex items-center justify-between md:justify-start w-full md:w-auto px-4 py-2 md:py-2
+                      space-x-2 text-gray-700 hover:text-gray-900 text-sm font-medium rounded-md
+                      ${activeDropdown === 'categories' ? 'bg-gray-100' : 'bg-gray-50'} 
+                      hover:bg-gray-100 transition-colors duration-200`}
+                >
+                  <div className="flex items-center space-x-2">
+                    <ShoppingBag className="h-4 w-4 text-gray-600" />
+                    <span className="text-xs font-semibold tracking-wide">ALL CATEGORIES</span>
+                  </div>
+                  <ChevronDown className={`h-3 w-3 transition-transform duration-200 
+                      ${activeDropdown === 'categories' ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* Categories Mega Dropdown */}
+                {activeDropdown === 'categories' && (
+                  <div className="absolute top-full left-0 mt-2 w-full md:w-[600px] bg-white shadow-xl 
+                      border border-gray-200 rounded-lg z-50 p-4 md:p-6 animate-fadeIn">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+                      {Object.entries(categories).map(([category, { icon, items }]) => (
+                        <div key={category} className="space-y-3 group">
+                          <div className="flex items-center space-x-3 pb-2 border-b border-gray-100
+                                           group-hover:border-gray-300 transition-colors duration-200">
+                            <div className="p-2 bg-gray-50 rounded-lg group-hover:bg-gray-100 transition-colors duration-200">
+                              {icon}
+                            </div>
+                            <span className="font-medium text-sm text-gray-800 group-hover:text-gray-900 transition-colors duration-200">
+                              {category}
+                            </span>
+                          </div>
+                          <div className="space-y-2.5 pl-2">
+                            {items.map((item) => (
+                              <a 
+                                key={item.name} 
+                                href="#" 
+                                className="block text-xs text-gray-600 hover:text-gray-900 hover:font-medium
+                                         transition-all duration-200 transform hover:translate-x-1"
+                              >
+                                {item.name}
+                              </a>
+                            ))}
+                            <a 
+                              href="#" 
+                              className="block text-xs text-gray-900/80 hover:text-black font-medium
+                                       transition-colors duration-200 pt-1"
+                            >
+                              View all {category.toLowerCase()} →
+                            </a>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Popular Categories - Mobile Responsive */}
+              <div className="overflow-x-auto scrollbar-hide">
+                <div className="flex items-center space-x-4 pb-2 md:pb-0 md:h-full">
+                  <a href="#" className="text-xs whitespace-nowrap text-gray-600 hover:text-gray-900 transition-colors duration-200 
+                      flex items-center space-x-1.5 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full">
+                    <Car className="h-3.5 w-3.5" />
+                    <span>Cars</span>
+                  </a>
+                  <a href="#" className="text-xs whitespace-nowrap text-gray-600 hover:text-gray-900 transition-colors duration-200 
+                      flex items-center space-x-1.5 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full">
+                    <Truck className="h-3.5 w-3.5" />
+                    <span>Commercial</span>
+                  </a>
+                  <a href="#" className="text-xs whitespace-nowrap text-gray-600 hover:text-gray-900 transition-colors duration-200 
+                      flex items-center space-x-1.5 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full">
+                    <CarFront className="h-3.5 w-3.5" />
+                    <span>SUVs</span>
+                  </a>
+                  <a href="#" className="text-xs whitespace-nowrap text-gray-600 hover:text-gray-900 transition-colors duration-200 
+                      flex items-center space-x-1.5 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full">
+                    <Laptop className="h-3.5 w-3.5" />
+                    <span>Electronics</span>
+                  </a>
+                  <a href="#" className="text-xs whitespace-nowrap text-gray-600 hover:text-gray-900 transition-colors duration-200 
+                      flex items-center space-x-1.5 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full">
+                    <Sofa className="h-3.5 w-3.5" />
+                    <span>Home & Garden</span>
+                  </a>
+                  <a href="#" className="text-xs whitespace-nowrap text-gray-600 hover:text-gray-900 transition-colors duration-200 
+                      flex items-center space-x-1.5 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full">
+                    <Briefcase className="h-3.5 w-3.5" />
+                    <span>Jobs</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* CSS Animations */}
       <style jsx>{`
@@ -434,8 +431,8 @@ const Navbar = () => {
         }
         /* Hide scrollbar for IE, Edge and Firefox */
         .scrollbar-hide {
-          -ms-overflow-style: none;  /* IE and Edge */
-          scrollbar-width: none;  /* Firefox */
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
       `}</style>
     </>

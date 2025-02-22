@@ -1,0 +1,206 @@
+{
+    "categories":[
+
+        {
+            "title": "Vehicles",
+            "items": [
+              {
+                "title": "Toyota Camry 2022",
+                "price": "Rs 5,200,000",
+                "location": "DHA, Lahore",
+                "time": "2 days ago",
+                "image": "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb"
+              },
+              
+              {
+                "title": "Honda Civic 2021",
+                "price": "Rs 4,800,000",
+                "location": "Gulberg, Lahore",
+                "time": "1 week ago",
+                "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf"
+              },
+              {
+                "title": "BMW X5 2020",
+                "price": "Rs 15,500,000",
+                "location": "F-7, Islamabad",
+                "time": "3 days ago",
+                "image": "https://images.unsplash.com/photo-1555215695-3004980ad54e"
+              },
+              {
+                "title": "Mercedes C-Class",
+                "price": "Rs 12,800,000",
+                "location": "Clifton, Karachi",
+                "time": "5 days ago",
+                "image": "https://images.unsplash.com/photo-1553440569-bcc63803a83d"
+              }
+            ]
+          },
+          {
+            "title": "Property",
+            "items": [
+              {
+                "title": "5 Marla House",
+                "price": "Rs 25,000,000",
+                "location": "Bahria Town, Islamabad",
+                "time": "1 day ago",
+                "image": "https://images.unsplash.com/photo-1518780664697-55e3ad937233"
+              },
+              {
+                "title": "1 Kanal Plot",
+                "price": "Rs 45,000,000",
+                "location": "Phase 6, DHA",
+                "time": "4 days ago",
+                "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef"
+              },
+              {
+                "title": "10 Marla House",
+                "price": "Rs 35,000,000",
+                "location": "Valencia, Lahore",
+                "time": "2 days ago",
+                "image": "https://images.unsplash.com/photo-1564013799919-ab600027ffc6"
+              },
+              {
+                "title": "Commercial Plaza",
+                "price": "Rs 150,000,000",
+                "location": "Blue Area, Islamabad",
+                "time": "1 week ago",
+                "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab"
+              }
+            ]
+          },
+          {
+            "title": "Electronics",
+            "items": [
+              {
+                "title": "MacBook Pro M1",
+                "price": "Rs 250,000",
+                "location": "Johar Town, Lahore",
+                "time": "3 days ago",
+                "image": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8"
+              },
+              {
+                "title": "iPhone 13 Pro",
+                "price": "Rs 180,000",
+                "location": "Gulshan, Karachi",
+                "time": "5 days ago",
+                "image": "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5"
+              },
+              {
+                "title": "Samsung 4K TV",
+                "price": "Rs 120,000",
+                "location": "Model Town, Lahore",
+                "time": "2 days ago",
+                "image": "https://images.samsung.com/is/image/samsung/pk-uhd-tu7000-ua75tu7000uxmm-rperspective-thumb-265964846?$344_344_PNG$"
+              },
+              {
+                "title": "Gaming PC",
+                "price": "Rs 350,000",
+                "location": "DHA, Karachi",
+                "time": "1 day ago",
+                "image": "https://images.unsplash.com/photo-1587831990711-23ca6441447b"
+              }
+            ]
+          },
+          {
+            "title": "Home & Garden",
+            "items": [
+              {
+                "title": "Modern Sofa Set",
+                "price": "Rs 85,000",
+                "location": "Model Town, Lahore",
+                "time": "6 days ago",
+                "image": "https://images.unsplash.com/photo-1555041469-a586c61ea9bc"
+              },
+              {
+                "title": "Garden Furniture",
+                "price": "Rs 45,000",
+                "location": "F-7, Islamabad",
+                "time": "3 days ago",
+                "image": "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91"
+              },
+              {
+                "title": "King Size Bed",
+                "price": "Rs 95,000",
+                "location": "Gulberg, Lahore",
+                "time": "4 days ago",
+                "image": "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85"
+              },
+              {
+                "title": "Dining Table Set",
+                "price": "Rs 65,000",
+                "location": "DHA, Karachi",
+                "time": "2 days ago",
+                "image": "https://images.unsplash.com/photo-1617806118233-18e1de247200"
+              }
+            ]
+          },
+          {
+            "title": "Fashion",
+            "items": [
+              {
+                "title": "Designer Handbag",
+                "price": "Rs 15,000",
+                "location": "Gulberg III, Lahore",
+                "time": "1 day ago",
+                "image": "https://images.unsplash.com/photo-1548036328-c9fa89d128fa"
+              },
+              {
+                "title": "Men's Watch",
+                "price": "Rs 25,000",
+                "location": "Defence, Karachi",
+                "time": "5 days ago",
+                "image": "https://images.unsplash.com/photo-1524592094714-0f0654e20314"
+              },
+              {
+                "title": "Designer Shoes",
+                "price": "Rs 12,000",
+                "location": "MM Alam, Lahore",
+                "time": "2 days ago",
+                "image": "https://images.unsplash.com/photo-1542291026-7eec264c27ff"
+              },
+              {
+                "title": "Summer Collection",
+                "price": "Rs 8,000",
+                "location": "Centaurus, Islamabad",
+                "time": "3 days ago",
+                "image": "https://images.unsplash.com/photo-1445205170230-053b83016050"
+              }
+            ]
+          },
+          {
+            "title": "Jobs",
+            "items": [
+              {
+                "title": "Software Engineer",
+                "price": "Rs 150,000/month",
+                "location": "Blue Area, Islamabad",
+                "time": "2 days ago",
+                "image": "https://images.unsplash.com/photo-1498050108023-c5249f4df085"
+              },
+              {
+                "title": "Marketing Manager",
+                "price": "Rs 120,000/month",
+                "location": "DHA, Karachi",
+                "time": "4 days ago",
+                "image": "https://images.unsplash.com/photo-1557804506-669a67965ba0"
+              },
+              {
+                "title": "Product Designer",
+                "price": "Rs 180,000/month",
+                "location": "Gulberg, Lahore",
+                "time": "1 day ago",
+                "image": "https://images.unsplash.com/photo-1561070791-2526d30994b5"
+              },
+              {
+                "title": "Sales Executive",
+                "price": "Rs 80,000/month",
+                "location": "F-10, Islamabad",
+                "time": "3 days ago",
+                "image": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2"
+              }
+            ]
+          }
+
+
+    ]
+}
