@@ -1,7 +1,7 @@
 import React from 'react';
 import Navbar from '../components/home/navbar';
 import SmartMartAdd from '../components/home/addsense';
-import ProductsDisplay from '../components/home/products-display';
+import ProductsDisplay from '../components/home/categories-display';
 import Footer from '../components/home/footer';
 
 const Home = () => {

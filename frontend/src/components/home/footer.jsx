@@ -15,7 +15,7 @@ return (
                         <li>
                             <a
                                 href="#"
-                                className="text-xs text-gray-400 hover:text-blue-400 transition-colors duration-200"
+                                className="text-xs text-gray-400 hover:text-gray-600 transition-colors duration-200"
                             >
                                 About Smart Marketplace
                             </a>
@@ -23,7 +23,7 @@ return (
                         <li>
                             <a
                                 href="#"
-                                className="text-xs text-gray-400 hover:text-blue-400 transition-colors duration-200"
+                                className="text-xs text-gray-400 hover:text-gray-600 transition-colors duration-200"
                             >
                                 Careers
                             </a>
@@ -31,7 +31,7 @@ return (
                         <li>
                             <a
                                 href="#"
-                                className="text-xs text-gray-400 hover:text-blue-400 transition-colors duration-200"
+                                className="text-xs text-gray-400 hover:text-gray-600 transition-colors duration-200"
                             >
                                 Contact Us
                             </a>
@@ -44,7 +44,7 @@ return (
                         <li>
                             <a
                                 href="#"
-                                className="text-xs text-gray-400 hover:text-blue-400 transition-colors duration-200"
+                                className="text-xs text-gray-400 hover:text-gray-600 transition-colors duration-200"
                             >
                                 Help Center
                             </a>
@@ -52,7 +52,7 @@ return (
                         <li>
                             <a
                                 href="#"
-                                className="text-xs text-gray-400 hover:text-blue-400 transition-colors duration-200"
+                                className="text-xs text-gray-400 hover:text-gray-600 transition-colors duration-200"
                             >
                                 Safety Tips
                             </a>
@@ -60,7 +60,7 @@ return (
                         <li>
                             <a
                                 href="#"
-                                className="text-xs text-gray-400 hover:text-blue-400 transition-colors duration-200"
+                                className="text-xs text-gray-400 hover:text-gray-600 transition-colors duration-200"
                             >
                                 Contact Support
                             </a>
@@ -73,7 +73,7 @@ return (
                         <li>
                             <a
                                 href="#"
-                                className="text-xs text-gray-400 hover:text-blue-400 transition-colors duration-200"
+                                className="text-xs text-gray-400 hover:text-gray-600 transition-colors duration-200"
                             >
                                 Terms of Use
                             </a>
@@ -81,7 +81,7 @@ return (
                         <li>
                             <a
                                 href="#"
-                                className="text-xs text-gray-400 hover:text-blue-400 transition-colors duration-200"
+                                className="text-xs text-gray-400 hover:text-gray-600 transition-colors duration-200"
                             >
                                 Privacy Policy
                             </a>
@@ -89,7 +89,7 @@ return (
                         <li>
                             <a
                                 href="#"
-                                className="text-xs text-gray-400 hover:text-blue-400 transition-colors duration-200"
+                                className="text-xs text-gray-400 hover:text-gray-600 transition-colors duration-200"
                             >
                                 Posting Rules
                             </a>
@@ -101,7 +101,7 @@ return (
                     <div className="flex space-x-4">
                         <a
                             href="#"
-                            className="text-gray-400 hover:text-blue-400 transition-colors duration-200 transform hover:-translate-y-1"
+                            className="text-gray-400 hover:text-gray-600 transition-colors duration-200 transform hover:-translate-y-1"
                         >
                             <span className="sr-only">Facebook</span>
                             <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
@@ -114,7 +114,7 @@ return (
                         </a>
                         <a
                             href="#"
-                            className="text-gray-400 hover:text-blue-400 transition-colors duration-200 transform hover:-translate-y-1"
+                            className="text-gray-400 hover:text-gray-600 transition-colors duration-200 transform hover:-translate-y-1"
                         >
                             <span className="sr-only">Twitter</span>
                             <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
@@ -123,7 +123,7 @@ return (
                         </a>
                         <a
                             href="#"
-                            className="text-gray-400 hover:text-blue-400 transition-colors duration-200 transform hover:-translate-y-1"
+                            className="text-gray-400 hover:text-gray-600 transition-colors duration-200 transform hover:-translate-y-1"
                         >
                             <span className="sr-only">Instagram</span>
                             <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
@@ -145,7 +145,7 @@ return (
                 </p>
                 <a
                     href="#top"
-                    className="text-xs text-gray-400 hover:text-blue-500 transition-colors duration-200"
+                    className="text-xs text-gray-400 hover:text-gray-600 transition-colors duration-200"
                 >
                 <ArrowUp className="h-5 w-5" />
                 </a>
