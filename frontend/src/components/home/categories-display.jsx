@@ -99,7 +99,7 @@ const MarketplaceCategories = () => {
   );
 };
 
-// ProductCard component
+// ProductCard component with lazy-loaded image
 const ProductCard = ({
   item,
   hoveredCard,
@@ -118,6 +118,7 @@ const ProductCard = ({
         <img
           src={item.image}
           alt={item.title}
+          loading="lazy"
           className={`w-full h-full object-cover transition-transform duration-500 ${
             hoveredCard === item.title ? 'scale-105' : 'scale-100'
           }`}
