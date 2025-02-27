@@ -172,7 +172,7 @@
         ]
       },
       {
-        "title": "Home & Garden",
+        "title": "Home Decor",
         "items": [
           {
             "id": 13,
@@ -227,121 +227,6 @@
             }
           }
         ]
-      },
-      {
-        "title": "Fashion",
-        "items": [
-          {
-            "id": 17,
-            "title": "Designer Handbag",
-            "price": " 15,000",
-            "location": "Gulberg III, Lahore",
-            "time": "1 day ago",
-            "image": "https://images.unsplash.com/photo-1548036328-c9fa89d128fa",
-            "description": "Chic designer handbag with premium craftsmanship",
-            "details": {
-              "brand": "Gucci",
-              "condition": "New"
-            }
-          },
-          {
-            "id": 18,
-            "title": "Men's Watch",
-            "price": " 25,000",
-            "location": "Defence, Karachi",
-            "time": "5 days ago",
-            "image": "https://images.unsplash.com/photo-1524592094714-0f0654e20314",
-            "description": "Elegant men's watch combining style and functionality",
-            "details": {
-              "brand": "Rolex",
-              "condition": "New"
-            }
-          },
-          {
-            "id": 19,
-            "title": "Designer Shoes",
-            "price": " 12,000",
-            "location": "MM Alam, Lahore",
-            "time": "2 days ago",
-            "image": "https://images.unsplash.com/photo-1542291026-7eec264c27ff",
-            "description": "Stylish shoes crafted with high-quality materials",
-            "details": {
-              "brand": "Jimmy Choo",
-              "condition": "New"
-            }
-          },
-          {
-            "id": 20,
-            "title": "Summer Collection",
-            "price": " 8,000",
-            "location": "Centaurus, Islamabad",
-            "time": "3 days ago",
-            "image": "https://images.unsplash.com/photo-1445205170230-053b83016050",
-            "description": "Trendy summer fashion collection featuring vibrant colo",
-            "details": {
-              "brand": "Zara",
-              "condition": "New"
-            }
-          }
-        ]
-      },
-      {
-        "title": "Jobs",
-        "items": [
-          {
-            "id": 21,
-            "title": "Software Engineer",
-            "price": " 150,000/month",
-            "location": "Blue Area, Islamabad",
-            "time": "2 days ago",
-            "image": "https://images.unsplash.com/photo-1498050108023-c5249f4df085",
-            "description": "Join our dynamic tech team as a Software Engineer",
-            "details": {
-              "brand": "TechCorp",
-              "condition": "Full-Time"
-            }
-          },
-          {
-            "id": 22,
-            "title": "Marketing Manager",
-            "price": " 120,000/month",
-            "location": "DHA, Karachi",
-            "time": "4 days ago",
-            "image": "https://images.unsplash.com/photo-1557804506-669a67965ba0",
-            "description": "Drive our marketing strategies and brand growth",
-            "details": {
-              "brand": "AdWorks",
-              "condition": "Full-Time"
-            }
-          },
-          {
-            "id": 23,
-            "title": "Product Designer",
-            "price": " 180,000/month",
-            "location": "Gulberg, Lahore",
-            "time": "1 day ago",
-            "image": "https://images.unsplash.com/photo-1561070791-2526d30994b5",
-            "description": "Innovative role shaping product design and user experience",
-            "details": {
-              "brand": "DesignHub",
-              "condition": "Full-Time"
-            }
-          },
-          {
-            "id": 24,
-            "title": "Sales Executive",
-            "price": " 80,000/month",
-            "location": "F-10, Islamabad",
-            "time": "3 days ago",
-            "image": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2",
-            "description": "Engage custome and drive sales in a dynamic environment",
-            "details": {
-              "brand": "SalesPro",
-              "condition": "Full-Time"
-            }
-          }
-        ]
       }
-    ]
-  }
-  
+      ]
+    }

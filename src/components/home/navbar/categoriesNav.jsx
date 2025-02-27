@@ -1,8 +1,8 @@
 // CategoriesNav.js
 import React, { useState, useRef } from 'react';
 import {
-  Car, CarFront, Truck, Laptop, Building2, Sofa,
-  Shirt, Briefcase, ShoppingBag, ChevronDown
+  Car, Laptop, Building2, Sofa,
+  ShoppingBag, ChevronDown
 } from 'lucide-react';
 
 const categories = {
@@ -30,7 +30,7 @@ const categories = {
       { name: 'Tablets' },
     ],
   },
-  'Home & Garden': {
+  'Home Decor': {
     icon: <Sofa className="h-5 w-5" />,
     items: [
       { name: 'Furniture' },
@@ -38,22 +38,7 @@ const categories = {
       { name: 'Garden' },
     ],
   },
-  'Fashion': {
-    icon: <Shirt className="h-5 w-5" />,
-    items: [
-      { name: 'Clothing' },
-      { name: 'Accessories' },
-      { name: 'Shoes' },
-    ],
-  },
-  'Jobs': {
-    icon: <Briefcase className="h-5 w-5" />,
-    items: [
-      { name: 'Full-time' },
-      { name: 'Part-time' },
-      { name: 'Casual' },
-    ],
-  },
+
 };
 
 const CategoriesNav = () => {
@@ -146,22 +131,7 @@ const CategoriesNav = () => {
                   <Car className="h-3.5 w-3.5" />
                   <span>Cars</span>
                 </a>
-                <a
-                  href="#"
-                  className="text-xs whitespace-nowrap text-gray-600 hover:text-gray-900 transition-colors duration-200 
-                    flex items-center space-x-1.5 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full"
-                >
-                  <Truck className="h-3.5 w-3.5" />
-                  <span>Commercial</span>
-                </a>
-                <a
-                  href="#"
-                  className="text-xs whitespace-nowrap text-gray-600 hover:text-gray-900 transition-colors duration-200 
-                    flex items-center space-x-1.5 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full"
-                >
-                  <CarFront className="h-3.5 w-3.5" />
-                  <span>SUVs</span>
-                </a>
+             
                 <a
                   href="#"
                   className="text-xs whitespace-nowrap text-gray-600 hover:text-gray-900 transition-colors duration-200 
@@ -176,15 +146,15 @@ const CategoriesNav = () => {
                     flex items-center space-x-1.5 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full"
                 >
                   <Sofa className="h-3.5 w-3.5" />
-                  <span>Home & Garden</span>
+                  <span>Home Decor</span>
                 </a>
                 <a
                   href="#"
                   className="text-xs whitespace-nowrap text-gray-600 hover:text-gray-900 transition-colors duration-200 
                     flex items-center space-x-1.5 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full"
                 >
-                  <Briefcase className="h-3.5 w-3.5" />
-                  <span>Jobs</span>
+                  <Building2 className="h-3.5 w-3.5" />
+                  <span>Property</span>
                 </a>
               </div>
             </div>

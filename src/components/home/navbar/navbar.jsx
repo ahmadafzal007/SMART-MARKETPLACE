@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router';
 import { 
   Menu, X, Search, ChevronDown, MapPin, 
   Globe, User, MessageSquare, Settings,
   LogOut, Heart, Package, FileText
 } from 'lucide-react';
 
-import LoginModal from '../registration/registrationCard';
+import LoginModal from '../../registration/registrationCard';
 import CategoriesNav from './categoriesNav';
-import authApi from '../../api/authapi';
+import authApi from '../../../api/authapi';
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -17,7 +18,7 @@ const Navbar = () => {
   const [user, setUser] = useState(null);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [unreadMessages, setUnreadMessages] = useState(3);
-
+  const navigate = useNavigate();
   const dropdownRef = useRef(null);
   const userDropdownRef = useRef(null);
 
@@ -226,9 +227,18 @@ const Navbar = () => {
               )}
 
               {/* SELL Button */}
-              <button className="group relative px-7 py-2.5 rounded-full bg-white transform 
-                hover:shadow-lg active:scale-95 transition-all duration-200 focus:outline-none 
-                focus:ring-2 focus:ring-gray-800 focus:ring-offset-2">
+              <button
+                onClick={() => {
+                  if (user) {
+                    navigate('/categories');
+                  } else {
+                    setIsLoginModalOpen(true);
+                  }
+                }}
+                className="group relative px-7 py-2.5 rounded-full bg-white transform 
+                  hover:shadow-lg active:scale-95 transition-all duration-200 focus:outline-none 
+                  focus:ring-2 focus:ring-gray-800 focus:ring-offset-2"
+              >
                 <div className="absolute inset-0 rounded-full bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900 
                   animate-gradient"></div>
                 <div className="absolute inset-[2px] rounded-full bg-white"></div>
@@ -363,7 +373,7 @@ const Navbar = () => {
                   }}
                 >
                   <Package className="h-3 w-3 mr-2" />
-                  <span>My Listings</span>
+                  <span>Listings</span>
                 </button>
                 {/* Saved Items Button */}
                 <button
@@ -374,12 +384,12 @@ const Navbar = () => {
                   }}
                 >
                   <Heart className="h-3 w-3 mr-2" />
-                  <span>Saved Items</span>
+                  <span>Items</span>
                 </button>
                 {/* Logout Button */}
                 <button
                   onClick={handleLogout}
-                  className="col-span-2 w-full px-4 py-3 text-white font-medium rounded-lg bg-red-800 hover:bg-red-900 active:bg-red-700 shadow-inner transition-all duration-200 flex items-center justify-center"
+                  className="col-span-2 w-full px-4 py-3 text-white font-medium rounded-lg bg-red-900 hover:bg-red-900/80 active:bg-red-700 shadow-inner transition-all duration-200 flex items-center justify-center"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
                   <div className="text-sm">Logout</div>
@@ -394,6 +404,13 @@ const Navbar = () => {
                   <span>Login</span>
                 </button>
                 <button
+                  onClick={() => {
+                    if (user) {
+                      navigate('/categories');
+                    } else {
+                      setIsLoginModalOpen(true);
+                    }
+                  }}
                   className="w-full px-4 py-3 text-white font-medium rounded-lg bg-gray-800 hover:bg-gray-700 active:bg-gray-900 transition-all duration-200 flex items-center justify-center"
                 >
                   <span className="mr-1">SELL</span>
@@ -420,7 +437,7 @@ const Navbar = () => {
       />
 
       {/* CSS Animations & Utilities */}
-      <style jsx>{`
+      <style>{`
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(-8px); }
           to { opacity: 1; transform: translateY(0); }

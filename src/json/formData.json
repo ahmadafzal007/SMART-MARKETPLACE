@@ -1,0 +1,47 @@
+{
+    "australianStates": [
+      "New South Wales",
+      "Victoria",
+      "Queensland",
+      "Western Australia",
+      "South Australia",
+      "Tasmania",
+      "Australian Capital Territory",
+      "Northern Territory"
+    ],
+    "citiesByState": {
+      "New South Wales": ["Sydney", "Newcastle", "Wollongong", "Central Coast"],
+      "Victoria": ["Melbourne", "Geelong", "Ballarat", "Bendigo"],
+      "Queensland": ["Brisbane", "Gold Coast", "Sunshine Coast", "Townsville"],
+      "Western Australia": ["Perth", "Fremantle", "Mandurah", "Bunbury"],
+      "South Australia": ["Adelaide", "Mount Gambier", "Whyalla", "Port Lincoln"],
+      "Tasmania": ["Hobart", "Launceston", "Devonport", "Burnie"],
+      "Australian Capital Territory": ["Canberra", "Belconnen", "Tuggeranong", "Gungahlin"],
+      "Northern Territory": ["Darwin", "Alice Springs", "Katherine", "Nhulunbuy"]
+    },
+    "areas": ["CBD", "Inner Suburbs", "Outer Suburbs", "Regional", "Rural"],
+    "brandsByCategory": {
+      "Electronics": {
+        "Smartphones": ["Apple", "Samsung", "Google", "Xiaomi", "Oppo", "Huawei", "OnePlus", "Motorola", "Nokia"],
+        "Laptops": ["Apple", "Dell", "HP", "Lenovo", "Asus", "Acer", "Microsoft", "MSI", "Razer"],
+        "Tablets": ["Apple", "Samsung", "Microsoft", "Lenovo", "Huawei", "Amazon"],
+        "TVs & Audio": ["Samsung", "LG", "Sony", "Panasonic", "Hisense", "TCL", "Bose", "JBL", "Sonos"],
+        "Cameras": ["Canon", "Nikon", "Sony", "Fujifilm", "Panasonic", "Olympus", "GoPro"],
+        "Smart Watches": ["Apple", "Samsung", "Garmin", "Fitbit", "Huawei", "Xiaomi"],
+        "Accessories": ["Belkin", "Anker", "JBL", "Logitech", "Sennheiser", "Sony"],
+        "Gaming": ["Sony", "Microsoft", "Nintendo", "Logitech", "Razer", "SteelSeries"],
+        "Computer Parts": ["Intel", "AMD", "Nvidia", "Corsair", "Kingston", "Western Digital", "Seagate"]
+      },
+      "Vehicles": {
+        "Cars": ["Toyota", "Mazda", "Ford", "Holden", "Hyundai", "Kia", "Volkswagen", "BMW", "Mercedes-Benz", "Audi"],
+        "Motorcycles": ["Harley-Davidson", "Honda", "Yamaha", "Kawasaki", "Suzuki", "Ducati", "KTM", "BMW"],
+        "Bikes": ["Trek", "Giant", "Specialized", "Cannondale", "Merida", "Scott", "Cervelo"],
+        "Spare Parts": ["Genuine", "Aftermarket", "OEM", "Performance", "Reconditioned"],
+        "Commercial Vehicles": ["Toyota", "Ford", "Isuzu", "Mitsubishi", "Hino", "Fuso", "Iveco", "Mercedes-Benz"],
+        "Boats": ["Quintrex", "Stacer", "Bayliner", "Sea Ray", "Riviera", "Maritimo", "Whittley"],
+        "Automotive Tools": ["Bosch", "Makita", "DeWalt", "Milwaukee", "Ryobi", "Snap-on"],
+        "Rentals": ["Budget", "Avis", "Hertz", "Europcar", "Thrifty", "Enterprise"]
+      }
+    }
+  }
+  

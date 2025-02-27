@@ -15,7 +15,7 @@ import {
 import marketplaceData from '../../json/marketplace-categories.json';
 
 // Lazy load components that aren't immediately visible
-const Navbar = lazy(() => import('../../components/home/navbar'));
+const Navbar = lazy(() => import('../../components/home/navbar/navbar'));
 const Footer = lazy(() => import('../../components/home/footer'));
 
 // Skeleton loader components

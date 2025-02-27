@@ -4,7 +4,7 @@ import axios from 'axios';
 // For example: REACT_APP_API_BASE_URL=http://localhost:5000/api/auth
 const API_BASE_URL = (typeof process !== 'undefined' && process.env.REACT_APP_API_BASE_URL) 
   ? process.env.REACT_APP_API_BASE_URL 
-  : 'https://3.110.40.239/api/auth';
+  : 'http://localhost:5000/api/auth';
 
 /**
  * Registers a new user.
@@ -30,6 +30,7 @@ export const register = async (data) => {
 export const login = async (data) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/login`, data);
+    console.log(response.data);
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : error;
@@ -75,12 +76,63 @@ export const updateProfile = async (token, data) => {
   }
 };
 
+
+
+// New function to trigger Google OAuth login/signup flow
+const googleAuth = () => {
+  const width = 500, height = 600;
+  const left = window.screen.width / 2 - width / 2;
+  const top = window.screen.height / 2 - height / 2;
+  // Open the Google auth flow in a popup window.
+  window.open(`${API_BASE_URL}/google`, 'GoogleAuth', `width=${width},height=${height},top=${top},left=${left}`);
+
+  return new Promise((resolve, reject) => {
+    const listener = (event) => {
+      // Optionally, check event.origin here if needed.
+      if (event.data && event.data.token) {
+        window.removeEventListener('message', listener);
+        resolve(event.data);
+      }
+    };
+    window.addEventListener('message', listener);
+  });
+};
+
+
+// Function to call the forgot password endpoint
+export const forgotPassword = async (email) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/forgot-password`, { email });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
+// Function to call the reset password endpoint
+export const resetPassword = async (email, verificationCode, newPassword) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/reset-password`, {
+      email,
+      verificationCode,
+      newPassword,
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
+
 // Optionally export as a single object for easier imports
 const authApi = {
   register,
   login,
   getProfile,
   updateProfile,
+  googleAuth,
+  forgotPassword,
+  resetPassword,
 };
 
 export default authApi;
