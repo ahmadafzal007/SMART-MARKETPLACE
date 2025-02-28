@@ -1,11 +1,12 @@
+// frontend/src/components/FormStepOne.jsx
 "use client"
 
-import { useRef } from "react"
-import { motion } from "framer-motion"
-import { Camera, AlertCircle, X, Upload, Loader2, Info } from "lucide-react"
-import { staggerItem } from "./animations"
+import { useRef } from "react";
+import { motion } from "framer-motion";
+import { Camera, AlertCircle, X, Upload, Loader2, Info } from "lucide-react";
+import { staggerItem } from "./animations";
 
-const FormStepOne = ({ formState, errors = {} }) => {
+const FormStepOne = ({ formState, errors = {}, formData, setFormData }) => {
   const {
     images,
     uploading,
@@ -17,9 +18,9 @@ const FormStepOne = ({ formState, errors = {} }) => {
     getCategoryIcon,
     category,
     subcategory,
-  } = formState
+  } = formState;
 
-  const fileInputRef = useRef(null)
+  const fileInputRef = useRef(null);
 
   return (
     <>
@@ -166,6 +167,8 @@ const FormStepOne = ({ formState, errors = {} }) => {
           <input
             id="title"
             placeholder="Enter title"
+            value={formData.title}
+            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
             className={`w-full border rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-300 ${
               errors.title ? "border-red-300 bg-red-50" : "border-gray-200"
             }`}
@@ -184,8 +187,7 @@ const FormStepOne = ({ formState, errors = {} }) => {
         )}
       </motion.div>
     </>
-  )
-}
+  );
+};
 
-export default FormStepOne
-
+export default FormStepOne;

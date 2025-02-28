@@ -5,7 +5,7 @@ import axios from 'axios';
 const API_BASE_URL =
   (typeof process !== 'undefined' && process.env.REACT_APP_API_BASE_URL)
     ? process.env.REACT_APP_API_BASE_URL
-    : 'https://3.110.40.239/api/auth';
+    : 'http://localhost:5000/api/auth';
 
 /**
  * Registers a new user.

@@ -1,3 +1,4 @@
+// frontend/src/pages/ProductPage.jsx
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { useParams } from 'react-router-dom';
 import { 
@@ -12,13 +13,13 @@ import {
   Shield,
   AlertCircle
 } from 'lucide-react';
-import marketplaceData from '../../json/marketplace-categories.json';
+import { fetchProductById } from '../../api/productapi';
 
-// Lazy load components that aren't immediately visible
+// Lazy load components
 const Navbar = lazy(() => import('../../components/home/navbar/navbar'));
 const Footer = lazy(() => import('../../components/home/footer'));
 
-// Skeleton loader components
+// Skeleton loaders
 const ImageSkeleton = () => (
   <div className="animate-pulse bg-gray-200 h-[450px] rounded-xl flex items-center justify-center">
     <div className="w-16 h-16 border-4 border-gray-300 border-t-gray-400 rounded-full animate-spin" />
@@ -58,28 +59,18 @@ const ProductPage = () => {
   const [imagesLoaded, setImagesLoaded] = useState([]);
 
   useEffect(() => {
-    const fetchProduct = async () => {
+    const fetchData = async () => {
       try {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        let product = null;
-        for (const category of marketplaceData.categories) {
-          for (const item of category.items) {
-            if (String(item.id) === productId) {
-              product = item;
-              break;
-            }
-          }
-          if (product) break;
-        }
+        const product = await fetchProductById(productId);
         setFoundProduct(product);
       } catch (error) {
-        console.error('Error fetching product:', error);
+        console.error("Error fetching product:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProduct();
+    fetchData();
   }, [productId]);
 
   if (!foundProduct && !loading) {
@@ -93,7 +84,10 @@ const ProductPage = () => {
     );
   }
 
-  const images = foundProduct ? [foundProduct.image, foundProduct.image] : [];
+  // Use multiple images if available (ensure foundProduct.images is an array)
+  const images = foundProduct 
+    ? (Array.isArray(foundProduct.images) ? foundProduct.images : [foundProduct.images])
+    : [];
 
   const handleImageLoad = (index) => {
     setImagesLoaded(prev => [...prev, index]);
@@ -107,6 +101,41 @@ const ProductPage = () => {
     setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
+  const formatRentType = (type) => {
+    switch(type?.toLowerCase()) {
+      case 'daily':
+        return '/ day';
+      case 'weekly':
+        return '/ week';
+      case 'monthly':
+        return '/ month';
+      default:
+        return `/ ${type}`;
+    }
+  };
+
+  // Render dynamic product details based on available fields
+  const renderProductDetails = () => {
+    if (!foundProduct) return null;
+    const details = [];
+    if (foundProduct.brand) details.push({ label: 'Brand', value: foundProduct.brand });
+    if (foundProduct.model) details.push({ label: 'Model', value: foundProduct.model });
+    if (foundProduct.condition) details.push({ label: 'Condition', value: foundProduct.condition });
+    if (foundProduct.propertyArea) details.push({ label: 'Property Area', value: foundProduct.propertyArea + ' sq ft' });
+    if (foundProduct.listingType) details.push({ label: 'Listing Type', value: foundProduct.listingType });
+
+    return (
+      <div className="grid grid-cols-2 gap-3 text-xs">
+        {details.map((detail, idx) => (
+          <div key={idx} className="flex flex-col">
+            <span className="text-gray-600">{detail.label}</span>
+            <span className="font-medium">{detail.value}</span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Suspense fallback={<div className="h-16 bg-gray-100 animate-pulse" />}>
@@ -116,12 +145,12 @@ const ProductPage = () => {
       <main className="max-w-6xl mx-auto px-4 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Image Gallery */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div className="lg:col-span-2 h-full">
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden h-full">
               {loading ? (
                 <ImageSkeleton />
               ) : (
-                <div className="relative h-[450px]">
+                <div className="relative h-full min-h-[450px]">
                   <span className="absolute top-3 left-3 z-10 bg-yellow-400 text-yellow-900 px-2 py-0.5 rounded-md text-xs font-medium">
                     FEATURED
                   </span>
@@ -133,9 +162,7 @@ const ProductPage = () => {
                   <img
                     src={images[currentImageIndex]}
                     alt={foundProduct?.title}
-                    className={`w-full h-full object-contain bg-gray-100 transition-opacity duration-300 ${
-                      imagesLoaded.includes(currentImageIndex) ? 'opacity-100' : 'opacity-0'
-                    }`}
+                    className={`w-full h-full object-contain bg-gray-100 transition-opacity duration-300 ${imagesLoaded.includes(currentImageIndex) ? 'opacity-100' : 'opacity-0'}`}
                     onLoad={() => handleImageLoad(currentImageIndex)}
                   />
                   {images.length > 1 && (
@@ -163,14 +190,19 @@ const ProductPage = () => {
           </div>
 
           {/* Product Info */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 h-full">
             {loading ? (
               <InfoSkeleton />
             ) : (
-              <div className="bg-white rounded-xl shadow-sm p-5">
+              <div className="bg-white rounded-xl shadow-sm p-5 h-full">
                 <div className="flex justify-between items-start mb-3">
                   <div>
-                    <h1 className="text-2xl font-bold">Rs {foundProduct.price.toLocaleString()}</h1>
+                    <h1 className="text-2xl font-bold">
+                      Rs {foundProduct.price.toLocaleString()}
+                      {foundProduct.rentType && (
+                        <span className="text-sm font-medium text-gray-500 ml-1">{formatRentType(foundProduct.rentType)}</span>
+                      )}
+                    </h1>
                     <h2 className="text-lg mt-1">{foundProduct.title}</h2>
                   </div>
                   <div className="flex gap-1.5">
@@ -189,11 +221,11 @@ const ProductPage = () => {
                 <div className="flex items-center gap-4 text-gray-600 text-sm mb-5">
                   <div className="flex items-center gap-1">
                     <MapPin className="h-3.5 w-3.5" />
-                    <span>{foundProduct.location}</span>
+                    <span>{foundProduct.city}, {foundProduct.state}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Clock className="h-3.5 w-3.5" />
-                    <span>{foundProduct.time}</span>
+                    <span>{(new Date(foundProduct.createdAt)).toLocaleDateString()}</span>
                   </div>
                 </div>
 
@@ -208,8 +240,10 @@ const ProductPage = () => {
                       />
                     </div>
                     <div>
-                      <h3 className="font-medium text-sm">Listed by private user</h3>
-                      <p className="text-xs text-gray-600">Member since Aug 2018</p>
+                      <h3 className="font-medium text-sm">{foundProduct.contactName}</h3>
+                      {foundProduct.email && (
+                        <p className="text-xs text-gray-600 mt-0.5">{foundProduct.email}</p>
+                      )}
                     </div>
                   </div>
 
@@ -232,19 +266,8 @@ const ProductPage = () => {
                   </div>
                   
                   <div className="space-y-4">
-                    <div>
-                      <h3 className="font-medium text-sm mb-2">Product Details</h3>
-                      <div className="grid grid-cols-2 gap-3 text-xs">
-                        <div className="flex flex-col">
-                          <span className="text-gray-600">Brand</span>
-                          <span className="font-medium">{foundProduct.details.brand}</span>
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="text-gray-600">Condition</span>
-                          <span className="font-medium">{foundProduct.details.condition}</span>
-                        </div>
-                      </div>
-                    </div>
+                    <h3 className="font-medium text-sm mb-2">Product Details</h3>
+                    {renderProductDetails()}
                   </div>
                 </div>
               </div>
@@ -271,7 +294,7 @@ const ProductPage = () => {
                   </p>
                 </div>
                 <div className="mt-5 pt-3 border-t text-xs text-gray-500">
-                  AD ID: 1077892421
+                  AD ID: {foundProduct._id}
                 </div>
               </div>
             )}

@@ -1,18 +1,30 @@
-// ProductCard.jsx
+// frontend/src/components/ProductCard.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Clock, MapPin, Heart } from 'lucide-react';
-// 1. Import from the lazy-load-image library
 import { LazyLoadImage } from 'react-lazy-load-image-component';
-import 'react-lazy-load-image-component/src/effects/blur.css'; // optional blur effect
+import 'react-lazy-load-image-component/src/effects/blur.css';
 
-const ProductCard = ({
-  item,
-  hoveredCard,
-  setHoveredCard,
-  likedItems,
-  toggleLike,
-}) => {
+const ProductCard = ({ item, hoveredCard, setHoveredCard, likedItems, toggleLike }) => {
+  // Format rent type text
+  const getRentTypeText = (type) => {
+    switch(type) {
+      case 'daily':
+        return 'day';
+      case 'weekly':
+        return 'week';
+      case 'monthly':
+        return 'month';
+      default:
+        return type;
+    }
+  };
+
+  // If product is for rent and has a rentType, append the appropriate period
+  const priceText = item.listingType === 'rent' && item.rentType 
+    ? `$${item.price}/${getRentTypeText(item.rentType)}`
+    : `$${item.price}`;
+
   return (
     <Link
       to={`/product/${item.id}`}
@@ -21,42 +33,51 @@ const ProductCard = ({
       className="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 cursor-pointer"
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
-        {/* 2. Use LazyLoadImage instead of <img> */}
-        <LazyLoadImage
-          src={item.image}
-          alt={item.title}
-          effect="blur" // you can use "opacity" or "black-and-white" too
-          className={`w-full h-full object-cover transition-transform duration-500 ${
-            hoveredCard === item.title ? 'scale-105' : 'scale-100'
-          }`}
-        />
-
-        {/* Like button */}
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleLike(item.title);
-          }}
-          className="absolute top-2 right-2 p-1.5 rounded-full bg-white/90 hover:bg-white shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
-        >
-          <Heart
-            className={`w-3.5 h-3.5 transition-colors ${
-              likedItems.has(item.title)
-                ? 'text-red-500 fill-current'
-                : 'text-gray-500 group-hover:text-gray-700'
+        <div className="absolute inset-0">
+          <LazyLoadImage
+            src={item.image}
+            alt={item.title}
+            effect="blur"
+            wrapperClassName="!absolute inset-0"
+            className={`w-full h-full object-cover object-center transition-transform duration-500 ${
+              hoveredCard === item.title ? 'scale-105' : 'scale-100'
             }`}
+            style={{ minWidth: '100%', minHeight: '100%' }}
           />
-        </button>
-
-        {/* Gradient overlay */}
-        <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-black/30 to-transparent" />
+        </div>
+        {/* Listing Type Tag - Top Left */}
+        {item.listingType && (
+          <div className="absolute top-2 left-2 z-10">
+            <div className="bg-black text-white text-xs px-2 py-1 rounded-md shadow-sm">
+              {item.listingType === 'rent' ? 'For Rent' : 'For Sale'}
+            </div>
+          </div>
+        )}
+        {/* Heart Button - Top Right */}
+        <div className="absolute top-2 right-2">
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              toggleLike(item.title);
+            }}
+            className="p-1.5 rounded-full bg-white/90 hover:bg-white shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
+          >
+            <Heart
+              className={`w-3.5 h-3.5 transition-colors ${
+                likedItems.has(item.title)
+                  ? 'text-red-500 fill-current'
+                  : 'text-gray-500 group-hover:text-gray-700'
+              }`}
+            />
+          </button>
+        </div>
       </div>
 
       <div className="p-3 space-y-2">
         <div className="space-y-0.5">
           <h3 className="font-bold text-base text-gray-800 font-['Inter']">
-            {item.price}
+            {priceText}
           </h3>
           <p className="text-gray-700 text-xs font-medium line-clamp-1">
             {item.title}

@@ -1,14 +1,15 @@
+// frontend/src/components/FormStepThree.jsx
 "use client"
 
-import { motion } from "framer-motion"
-import { MapPin, Smartphone, AlertCircle } from 'lucide-react'
-import { staggerContainer, staggerItem } from "./animations"
-import { useSelector } from 'react-redux'
-import { selectUser } from '../../../store/slices/userSlice'
+import { motion } from "framer-motion";
+import { MapPin, Smartphone, AlertCircle } from "lucide-react";
+import { staggerContainer, staggerItem } from "./animations";
+import { useSelector } from "react-redux";
+import { selectUser } from "../../../store/slices/userSlice";
 
-const FormStepThree = ({ formState, errors = {} }) => {
-  const { selectedState, setSelectedState, cities, australianStates, category } = formState
-  const user = useSelector(selectUser)
+const FormStepThree = ({ formState, errors = {}, formData, setFormData }) => {
+  const { selectedState, setSelectedState, cities, australianStates, category } = formState;
+  const user = useSelector(selectUser);
 
   return (
     <motion.div variants={staggerContainer} initial="hidden" animate="visible">
@@ -26,6 +27,8 @@ const FormStepThree = ({ formState, errors = {} }) => {
                 id="propertyArea"
                 type="number"
                 placeholder="Enter property area"
+                value={formData.propertyArea}
+                onChange={(e) => setFormData({ ...formData, propertyArea: e.target.value })}
                 className="w-full border border-gray-200 rounded-lg p-3 pr-16 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-300"
               />
               <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">sq ft</span>
@@ -87,6 +90,8 @@ const FormStepThree = ({ formState, errors = {} }) => {
                     : "border-gray-200"
               }`}
               disabled={!selectedState}
+              value={formData.city}
+              onChange={(e) => setFormData({ ...formData, city: e.target.value })}
             >
               <option value="">{selectedState ? "Select city" : "Select state first"}</option>
               {cities.map((city) => (
@@ -121,6 +126,8 @@ const FormStepThree = ({ formState, errors = {} }) => {
               id="name"
               placeholder="Your name"
               defaultValue={user?.name || ''}
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               className={`w-full border rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-300 ${
                 errors.name ? "border-red-300 bg-red-50" : "border-gray-200"
               }`}
@@ -132,6 +139,32 @@ const FormStepThree = ({ formState, errors = {} }) => {
               </p>
             )}
           </div>
+
+          {/* <div>
+            <label htmlFor="email" className="font-medium text-gray-800 block mb-1.5 text-xs">
+              Email<span className="text-red-500 ml-1">*</span>
+            </label>
+            <motion.input
+              whileHover={{ scale: 1.01 }}
+              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              id="email"
+              type="email"
+              placeholder="Your email address"
+              defaultValue={user?.email || ''}
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className={`w-full border rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-300 ${
+                errors.email ? "border-red-300 bg-red-50" : "border-gray-200"
+              }`}
+            />
+            {errors.email && (
+              <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                <AlertCircle className="h-3 w-3" />
+                {errors.email}
+              </p>
+            )}
+          </div> */}
+
           <div>
             <div className="flex justify-between items-center mb-1.5">
               <label className="font-medium text-gray-800 text-xs">Your phone number</label>
@@ -155,7 +188,7 @@ const FormStepThree = ({ formState, errors = {} }) => {
         </div>
       </motion.div>
     </motion.div>
-  )
-}
+  );
+};
 
-export default FormStepThree
+export default FormStepThree;

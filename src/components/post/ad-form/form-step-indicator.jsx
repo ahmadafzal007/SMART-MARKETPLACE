@@ -1,10 +1,26 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Sparkles } from "lucide-react"
+import { Sparkles, AlertCircle } from "lucide-react"
 import { pulseAnimation } from "./animations"
 
-const FormStepIndicator = ({ currentStep, setCurrentStep }) => {
+const FormStepIndicator = ({ currentStep, setCurrentStep, validateStep }) => {
+  const handleStepChange = (step) => {
+    // Only allow moving forward if current step is validated
+    if (step > currentStep && !validateStep(currentStep)) {
+      return;
+    }
+    // Allow moving backward freely
+    if (step < currentStep) {
+      setCurrentStep(step);
+      return;
+    }
+    // For moving forward, validate current step
+    if (validateStep(currentStep)) {
+      setCurrentStep(step);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -20 }}
@@ -21,7 +37,7 @@ const FormStepIndicator = ({ currentStep, setCurrentStep }) => {
                 key={step}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                onClick={() => setCurrentStep(step)}
+                onClick={() => handleStepChange(step)}
                 className={`w-7 h-7 rounded-full flex items-center justify-center transition-all text-xs ${
                   currentStep >= step ? "bg-black text-white" : "bg-gray-200 text-gray-500 hover:bg-gray-300"
                 }`}
@@ -41,7 +57,10 @@ const FormStepIndicator = ({ currentStep, setCurrentStep }) => {
         ></motion.div>
       </div>
       <div className="flex justify-between text-xs text-gray-500 md:hidden">
-        <div className={`flex flex-col items-center ${currentStep >= 1 ? "text-black font-medium" : ""}`}>
+        <div 
+          className={`flex flex-col items-center ${currentStep >= 1 ? "text-black font-medium" : ""}`}
+          onClick={() => handleStepChange(1)}
+        >
           <div
             className={`w-7 h-7 rounded-full flex items-center justify-center mb-1 ${currentStep >= 1 ? "bg-black text-white" : "bg-gray-200"}`}
           >
@@ -49,7 +68,10 @@ const FormStepIndicator = ({ currentStep, setCurrentStep }) => {
           </div>
           <span>Overview</span>
         </div>
-        <div className={`flex flex-col items-center ${currentStep >= 2 ? "text-black font-medium" : ""}`}>
+        <div 
+          className={`flex flex-col items-center ${currentStep >= 2 ? "text-black font-medium" : ""}`}
+          onClick={() => handleStepChange(2)}
+        >
           <div
             className={`w-7 h-7 rounded-full flex items-center justify-center mb-1 ${currentStep >= 2 ? "bg-black text-white" : "bg-gray-200"}`}
           >
@@ -57,7 +79,10 @@ const FormStepIndicator = ({ currentStep, setCurrentStep }) => {
           </div>
           <span>Details</span>
         </div>
-        <div className={`flex flex-col items-center ${currentStep >= 3 ? "text-black font-medium" : ""}`}>
+        <div 
+          className={`flex flex-col items-center ${currentStep >= 3 ? "text-black font-medium" : ""}`}
+          onClick={() => handleStepChange(3)}
+        >
           <div
             className={`w-7 h-7 rounded-full flex items-center justify-center mb-1 ${currentStep >= 3 ? "bg-black text-white" : "bg-gray-200"}`}
           >

@@ -1,12 +1,12 @@
+// frontend/src/components/FormStepTwo.jsx
 "use client"
 
-import { motion, AnimatePresence } from "framer-motion"
-import { Search, DollarSign, Tag, Home, Info, AlertCircle } from "lucide-react"
-import { staggerContainer, staggerItem } from "./animations"
+import { motion, AnimatePresence } from "framer-motion";
+import { Search, DollarSign, Tag, Home, Info, AlertCircle } from "lucide-react";
+import { staggerContainer, staggerItem } from "./animations";
 
-const FormStepTwo = ({ formState, errors = {} }) => {
-  const { listingType, setListingType, rentType, setRentType, showBrandModel, showRentSellOption, getBrands } =
-    formState
+const FormStepTwo = ({ formState, errors = {}, formData, setFormData }) => {
+  const { listingType, setListingType, rentType, setRentType, showBrandModel, showRentSellOption, getBrands } = formState;
 
   return (
     <motion.div variants={staggerContainer} initial="hidden" animate="visible">
@@ -21,7 +21,9 @@ const FormStepTwo = ({ formState, errors = {} }) => {
               whileHover={{ scale: 1.01 }}
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
               id="brand"
-              className={`w-full border rounded-lg p-3 pr-10 text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-300 ${
+              value={formData.brand}
+              onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
+              className={`w-full border rounded-sm p-3 pr-10 text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-300 ${
                 errors.brand ? "border-red-300 bg-red-50" : "border-gray-200"
               }`}
             >
@@ -54,7 +56,7 @@ const FormStepTwo = ({ formState, errors = {} }) => {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
-              className={`relative flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:shadow-sm transition-all duration-300 group flex-1 ${
+              className={`relative flex items-center gap-3 p-3 border rounded-sm cursor-pointer hover:shadow-sm transition-all duration-300 group flex-1 ${
                 errors.condition ? "border-red-300 bg-red-50" : "border-gray-200 hover:border-black"
               }`}
             >
@@ -63,7 +65,8 @@ const FormStepTwo = ({ formState, errors = {} }) => {
                 name="condition"
                 value="new"
                 id="condition-new"
-                defaultChecked
+                checked={formData.condition === "new"}
+                onChange={(e) => setFormData({ ...formData, condition: e.target.value })}
                 className="w-3.5 h-3.5 text-black focus:ring-black focus:border-gray-300"
               />
               <div>
@@ -82,7 +85,7 @@ const FormStepTwo = ({ formState, errors = {} }) => {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
-              className={`relative flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:shadow-sm transition-all duration-300 group flex-1 ${
+              className={`relative flex items-center gap-3 p-3 border rounded-sm cursor-pointer hover:shadow-sm transition-all duration-300 group flex-1 ${
                 errors.condition ? "border-red-300 bg-red-50" : "border-gray-200 hover:border-black"
               }`}
             >
@@ -91,6 +94,8 @@ const FormStepTwo = ({ formState, errors = {} }) => {
                 name="condition"
                 value="used"
                 id="condition-used"
+                checked={formData.condition === "used"}
+                onChange={(e) => setFormData({ ...formData, condition: e.target.value })}
                 className="w-3.5 h-3.5 text-black focus:ring-black focus:border-gray-300"
               />
               <div>
@@ -119,7 +124,7 @@ const FormStepTwo = ({ formState, errors = {} }) => {
             transition={{ type: "spring", stiffness: 400, damping: 10 }}
             id="model"
             placeholder="Enter model"
-            className="w-full border border-gray-200 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-300"
+            className="w-full border border-gray-200 rounded-sm p-3 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-300"
           />
         </motion.div>
       )}
@@ -135,7 +140,7 @@ const FormStepTwo = ({ formState, errors = {} }) => {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
-              className={`flex items-center justify-center gap-2 p-3 border rounded-lg cursor-pointer transition-all duration-300 ${
+              className={`flex items-center justify-center gap-2 p-3 border rounded-sm cursor-pointer transition-all duration-300 ${
                 listingType === "sell"
                   ? "bg-black text-white border-black shadow-sm"
                   : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
@@ -157,7 +162,7 @@ const FormStepTwo = ({ formState, errors = {} }) => {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
-              className={`flex items-center justify-center gap-2 p-3 border rounded-lg cursor-pointer transition-all duration-300 ${
+              className={`flex items-center justify-center gap-2 p-3 border rounded-sm cursor-pointer transition-all duration-300 ${
                 listingType === "rent"
                   ? "bg-black text-white border-black shadow-sm"
                   : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
@@ -184,7 +189,7 @@ const FormStepTwo = ({ formState, errors = {} }) => {
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3 }}
-                className="mt-3 bg-gray-50 p-4 rounded-lg border border-gray-200"
+                className="mt-3 bg-gray-50 p-4 rounded-sm border border-gray-200"
               >
                 <label className="text-xs font-medium text-gray-900 block mb-2">Rent Type</label>
                 <div className="grid grid-cols-3 gap-2">
@@ -197,7 +202,7 @@ const FormStepTwo = ({ formState, errors = {} }) => {
                       key={type}
                       whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.95 }}
-                      className={`flex items-center justify-center gap-1.5 p-2 border rounded-lg cursor-pointer capitalize transition-all duration-300 text-xs ${
+                      className={`flex items-center justify-center gap-1.5 p-2 border rounded-sm cursor-pointer capitalize transition-all duration-300 text-xs ${
                         rentType === type
                           ? "bg-black border-black text-white font-medium shadow-sm"
                           : "border-gray-200 hover:border-gray-300 hover:bg-white"
@@ -235,7 +240,9 @@ const FormStepTwo = ({ formState, errors = {} }) => {
             id="price"
             type="number"
             placeholder="Enter Price"
-            className={`pl-10 w-full border rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-300 ${
+            value={formData.price}
+            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+            className={`pl-10 w-full border rounded-sm p-3 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-300 ${
               errors.price ? "border-red-300 bg-red-50" : "border-gray-200"
             }`}
           />
@@ -246,16 +253,7 @@ const FormStepTwo = ({ formState, errors = {} }) => {
             {errors.price}
           </p>
         )}
-        <div className="mt-2 flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="negotiable"
-            className="w-3.5 h-3.5 text-black focus:ring-black border-gray-300 rounded"
-          />
-          <label htmlFor="negotiable" className="text-xs text-gray-700">
-            Price is negotiable
-          </label>
-        </div>
+    
       </motion.div>
 
       {/* Description Section */}
@@ -268,7 +266,9 @@ const FormStepTwo = ({ formState, errors = {} }) => {
           transition={{ type: "spring", stiffness: 400, damping: 10 }}
           id="description"
           placeholder="Describe the item you're selling"
-          className={`w-full border rounded-lg p-3 text-sm min-h-[120px] focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-300 ${
+          value={formData.description}
+          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          className={`w-full border rounded-sm p-3 text-sm min-h-[120px] focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-300 ${
             errors.description ? "border-red-300 bg-red-50" : "border-gray-200"
           }`}
         ></motion.textarea>
@@ -287,8 +287,7 @@ const FormStepTwo = ({ formState, errors = {} }) => {
         )}
       </motion.div>
     </motion.div>
-  )
-}
+  );
+};
 
-export default FormStepTwo
-
+export default FormStepTwo;

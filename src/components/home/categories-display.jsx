@@ -1,34 +1,94 @@
-// MarketplaceCategories.jsx
+// frontend/src/components/MarketplaceCategories.jsx
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { ChevronRight, Clock, MapPin, Heart } from 'lucide-react';
-import marketplaceData from '../../json/marketplace-categories.json';
+import { ChevronRight } from 'lucide-react';
+import { fetchRandomProducts } from '../../api/productapi';
+import ProductCard from './ProductCard';
 
-const CACHE_KEY = 'marketplaceData';
-const CACHE_EXPIRY = 5 * 60 * 1000; // 5 minutes in milliseconds
+const CACHE_KEY = 'marketplace_categories';
+const CACHE_DURATION = 5 * 60 * 60 * 1000; // 5 hours in milliseconds
 
 const MarketplaceCategories = () => {
+  const [categoriesData, setCategoriesData] = useState([]);
   const [hoveredCard, setHoveredCard] = useState(null);
   const [likedItems, setLikedItems] = useState(new Set());
-  const [data, setData] = useState([]);
+
+  // Helper function to compute relative time (e.g., "2 days ago")
+  const timeAgo = (date) => {
+    const seconds = Math.floor((new Date() - date) / 1000);
+    let interval = Math.floor(seconds / 31536000);
+    if (interval >= 1) {
+      return interval + " year" + (interval > 1 ? "s" : "") + " ago";
+    }
+    interval = Math.floor(seconds / 2592000);
+    if (interval >= 1) {
+      return interval + " month" + (interval > 1 ? "s" : "") + " ago";
+    }
+    interval = Math.floor(seconds / 86400);
+    if (interval >= 1) {
+      return interval + " day" + (interval > 1 ? "s" : "") + " ago";
+    }
+    interval = Math.floor(seconds / 3600);
+    if (interval >= 1) {
+      return interval + " hour" + (interval > 1 ? "s" : "") + " ago";
+    }
+    interval = Math.floor(seconds / 60);
+    if (interval >= 1) {
+      return interval + " minute" + (interval > 1 ? "s" : "") + " ago";
+    }
+    return Math.floor(seconds) + " seconds ago";
+  };
+
+  const transformData = (randomData) => {
+    const transformed = Object.keys(randomData).map((key) => ({
+      title: key,
+      items: randomData[key].map((product) => ({
+        id: product._id,
+        image: product.images[0],
+        title: product.title,
+        price: product.price,
+        listingType: product.listingType,
+        rentType: product.rentType,
+        location: `${product.city}, ${product.state}`,
+        time: timeAgo(new Date(product.createdAt)),
+      })),
+    }));
+    return transformed.filter(category => category.items && category.items.length > 0);
+  };
 
   useEffect(() => {
-    const fetchData = () => {
-      const cachedData = localStorage.getItem(CACHE_KEY);
-      const cachedTimestamp = localStorage.getItem(`${CACHE_KEY}_timestamp`);
-
-      if (cachedData && cachedTimestamp) {
-        const age = Date.now() - parseInt(cachedTimestamp, 10);
-        if (age < CACHE_EXPIRY) {
-          setData(JSON.parse(cachedData));
-          return;
+    const fetchData = async () => {
+      try {
+        // Check cache first
+        const cachedData = localStorage.getItem(CACHE_KEY);
+        if (cachedData) {
+          const { data, expiry } = JSON.parse(cachedData);
+          // Check if cache is still valid
+          if (expiry > Date.now()) {
+            setCategoriesData(data);
+            return;
+          } else {
+            // Clear expired cache
+            localStorage.removeItem(CACHE_KEY);
+          }
         }
+
+        // Fetch fresh data if no cache or cache expired
+        const randomData = await fetchRandomProducts();
+        const transformed = transformData(randomData);
+        
+        // Cache the transformed data
+        const cacheData = {
+          data: transformed,
+          expiry: Date.now() + CACHE_DURATION
+        };
+        localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+        
+        setCategoriesData(transformed);
+      } catch (error) {
+        console.error('Error loading random products:', error);
       }
-      // If no cache or expired, load fresh data
-      localStorage.setItem(CACHE_KEY, JSON.stringify(marketplaceData.categories));
-      localStorage.setItem(`${CACHE_KEY}_timestamp`, Date.now().toString());
-      setData(marketplaceData.categories);
     };
+
     fetchData();
   }, []);
 
@@ -46,124 +106,59 @@ const MarketplaceCategories = () => {
 
   return (
     <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-8 font-['Plus_Jakarta_Sans']">
-      {data.map((category) => (
-        <div key={category.title} className="space-y-4">
-          <div className="flex justify-between items-center">
-            <div className="space-y-0.5">
-              <h2 className="text-lg sm:text-xl font-bold text-gray-800 tracking-tight font-['Inter']">
-                {category.title}
-              </h2>
-              <p className="text-xs text-gray-500">
-                Browse the latest {category.title.toLowerCase()} listings
-              </p>
-            </div>
-            <button className="group flex items-center space-x-1 text-blue-600 hover:text-blue-700 text-xs font-semibold transition-colors font-['Inter']">
-              <span>View all</span>
-              <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-            </button>
-          </div>
-
-          {/* Desktop grid view */}
-          <div className="relative">
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 sm:gap-4 hidden sm:grid">
-              {category.items.map((item) => (
-                <ProductCard
-                  key={item.id}
-                  item={item}
-                  hoveredCard={hoveredCard}
-                  setHoveredCard={setHoveredCard}
-                  likedItems={likedItems}
-                  toggleLike={toggleLike}
-                />
-              ))}
+      {categoriesData.map((category) => (
+        // Only render a category block if there are items.
+        category.items.length > 0 && (
+          <div key={category.title} className="space-y-4">
+            <div className="flex justify-between items-center">
+              <div className="space-y-0.5">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-800 tracking-tight font-['Inter']">
+                  {category.title}
+                </h2>
+                <p className="text-xs text-gray-500">
+                  Browse the latest {category.title.toLowerCase()} listings
+                </p>
+              </div>
+              <button className="group flex items-center space-x-1 text-blue-600 hover:text-blue-700 text-xs font-semibold transition-colors font-['Inter']">
+                <span>View all</span>
+                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+              </button>
             </div>
 
-            {/* Mobile horizontal scroll view */}
-            <div className="flex gap-3 overflow-x-auto pb-4 sm:hidden -mx-4 px-4 scroll-smooth scrollbar-hide">
-              {category.items.map((item) => (
-                <div className="w-[280px] flex-shrink-0" key={item.id}>
+            {/* Desktop grid view */}
+            <div className="relative">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4 sm:gap-4 hidden sm:grid">
+                {category.items.map((item) => (
                   <ProductCard
+                    key={item.id}
                     item={item}
                     hoveredCard={hoveredCard}
                     setHoveredCard={setHoveredCard}
                     likedItems={likedItems}
                     toggleLike={toggleLike}
                   />
-                </div>
-              ))}
+                ))}
+              </div>
+
+              {/* Mobile horizontal scroll view */}
+              <div className="flex gap-3 overflow-x-auto pb-4 sm:hidden -mx-4 px-4 scroll-smooth scrollbar-hide">
+                {category.items.map((item) => (
+                  <div className="w-[280px] flex-shrink-0" key={item.id}>
+                    <ProductCard
+                      item={item}
+                      hoveredCard={hoveredCard}
+                      setHoveredCard={setHoveredCard}
+                      likedItems={likedItems}
+                      toggleLike={toggleLike}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        )
       ))}
     </div>
-  );
-};
-
-// ProductCard component with lazy-loaded image
-const ProductCard = ({
-  item,
-  hoveredCard,
-  setHoveredCard,
-  likedItems,
-  toggleLike,
-}) => {
-  return (
-    <Link
-      to={`/product/${item.id}`}
-      onMouseEnter={() => setHoveredCard(item.title)}
-      onMouseLeave={() => setHoveredCard(null)}
-      className="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 cursor-pointer"
-    >
-      <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
-        <img
-          src={item.image}
-          alt={item.title}
-          loading="lazy"
-          className={`w-full h-full object-cover transition-transform duration-500 ${
-            hoveredCard === item.title ? 'scale-105' : 'scale-100'
-          }`}
-        />
-        {/* Stop the "like" button from navigating to product */}
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleLike(item.title);
-          }}
-          className="absolute top-2 right-2 p-1.5 rounded-full bg-white/90 hover:bg-white shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
-        >
-          <Heart
-            className={`w-3.5 h-3.5 transition-colors ${
-              likedItems.has(item.title)
-                ? 'text-red-500 fill-current'
-                : 'text-gray-500 group-hover:text-gray-700'
-            }`}
-          />
-        </button>
-        <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-black/30 to-transparent" />
-      </div>
-
-      <div className="p-3 space-y-2">
-        <div className="space-y-0.5">
-          <h3 className="font-bold text-base text-gray-800 font-['Inter']">
-            {item.price}
-          </h3>
-          <p className="text-gray-700 text-xs font-medium line-clamp-1">
-            {item.title}
-          </p>
-        </div>
-        <div className="flex items-center gap-2 text-[11px] text-gray-500">
-          <div className="flex items-center">
-            <MapPin className="w-3 h-3 mr-0.5 flex-shrink-0" />
-            <span className="truncate">{item.location}</span>
-          </div>
-          <div className="flex items-center">
-            <Clock className="w-3 h-3 mr-0.5 flex-shrink-0" />
-            <span>{item.time}</span>
-          </div>
-        </div>
-      </div>
-    </Link>
   );
 };
 

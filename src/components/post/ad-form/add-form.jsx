@@ -1,163 +1,175 @@
-import { useState, useRef, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import Navbar from "../nav"
-import { CheckCircle2 } from 'lucide-react'
-import FormStepIndicator from "./form-step-indicator"
-import FormStepOne from "./form-step-one"
-import FormStepTwo from "./form-step-two"
-import FormStepThree from "./form-step-three"
-import AdPreview from "./ad-preview"
-import TipsSection from "./tips-section"
-import { useFormState } from "./use-form-state"
-import { fadeIn } from "./animations"
+// frontend/src/components/AdForm.jsx
+"use client"
+
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useSelector } from "react-redux";
+import { selectUser } from "../../../store/slices/userSlice";
+import Navbar from "../nav";
+import { CheckCircle2 } from "lucide-react";
+import FormStepIndicator from "./form-step-indicator";
+import FormStepOne from "./form-step-one";
+import FormStepTwo from "./form-step-two";
+import FormStepThree from "./form-step-three";
+import AdPreview from "./ad-preview";
+import TipsSection from "./tips-section";
+import { useFormState } from "./use-form-state";
+import { fadeIn } from "./animations";
+import { createProductAd } from "../../../api/productapi";
 
 const AdForm = ({ category = "Electronics", subcategory = "Smartphones" }) => {
-  const [currentStep, setCurrentStep] = useState(1)
-  const [formComplete, setFormComplete] = useState(false)
-  const [errors, setErrors] = useState({})
-  const formRef = useRef(null)
-  const containerRef = useRef(null)
+  // Retrieve user data from Redux store
+  const user = useSelector(selectUser);
 
-  const formState = useFormState(category, subcategory)
-  
-  // Validation functions for each step
+  const [currentStep, setCurrentStep] = useState(1);
+  const [formComplete, setFormComplete] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  // Controlled form state; note: email is not part of the form.
+  // The "name" is pre-populated with the value from the Redux store.
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    price: "",
+    brand: "",
+    condition: "",
+    propertyArea: "",
+    city: "",
+    name: user?.name || "",
+  });
+
+  // Update the name if user data changes
+  useEffect(() => {
+    if (user && user.name && formData.name !== user.name) {
+      setFormData((prev) => ({ ...prev, name: user.name }));
+    }
+  }, [user]);
+
+  const formRef = useRef(null);
+  const containerRef = useRef(null);
+  const formState = useFormState(category, subcategory);
+
+  // Step validations
   const validateStepOne = () => {
-    const newErrors = {}
-    
-    // Check if title is filled
-    const titleInput = formRef.current.querySelector('#title')
-    if (!titleInput || !titleInput.value.trim()) {
-      newErrors.title = "Title is required"
+    const newErrors = {};
+    if (!formData.title.trim()) {
+      newErrors.title = "Title is required";
     }
-    
-    // Check if at least one image is uploaded
     if (formState.images.length === 0) {
-      newErrors.images = "At least one image is required"
+      newErrors.images = "At least one image is required";
     }
-    
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-  
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const validateStepTwo = () => {
-    const newErrors = {}
-    
-    // Check if price is filled
-    const priceInput = formRef.current.querySelector('#price')
-    if (!priceInput || !priceInput.value.trim() || isNaN(parseFloat(priceInput.value))) {
-      newErrors.price = "Valid price is required"
+    const newErrors = {};
+    if (!formData.price.trim() || isNaN(parseFloat(formData.price))) {
+      newErrors.price = "Valid price is required";
     }
-    
-    // Check if description is filled
-    const descriptionInput = formRef.current.querySelector('#description')
-    if (!descriptionInput || !descriptionInput.value.trim()) {
-      newErrors.description = "Description is required"
+    if (!formData.description.trim()) {
+      newErrors.description = "Description is required";
     }
-    
-    // Check if brand is selected (if applicable)
-    if (formState.showBrandModel) {
-      const brandSelect = formRef.current.querySelector('#brand')
-      if (!brandSelect || !brandSelect.value) {
-        newErrors.brand = "Brand selection is required"
-      }
+    if (formState.showBrandModel && !formData.brand) {
+      newErrors.brand = "Brand selection is required";
     }
-    
-    // Check if condition is selected (if applicable)
-    if (formState.category !== "Property") {
-      const conditionInputs = formRef.current.querySelectorAll('input[name="condition"]')
-      let conditionSelected = false
-      conditionInputs.forEach(input => {
-        if (input.checked) conditionSelected = true
-      })
-      
-      if (!conditionSelected) {
-        newErrors.condition = "Condition selection is required"
-      }
+    if (formState.category !== "Property" && !formData.condition) {
+      newErrors.condition = "Condition selection is required";
     }
-    
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-  
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const validateStepThree = () => {
-    const newErrors = {}
-    
-    // Check if state is selected
+    const newErrors = {};
     if (!formState.selectedState) {
-      newErrors.state = "State selection is required"
+      newErrors.state = "State selection is required";
     }
-    
-    // Check if city is selected
-    const citySelect = formRef.current.querySelector('#city')
-    if (!citySelect || !citySelect.value) {
-      newErrors.city = "City selection is required"
+    if (!formData.city) {
+      newErrors.city = "City selection is required";
     }
-    
-    // Check if name is filled
-    const nameInput = formRef.current.querySelector('#name')
-    if (!nameInput || !nameInput.value.trim()) {
-      newErrors.name = "Name is required"
+    if (!formData.name.trim()) {
+      newErrors.name = "Name is required";
     }
-    
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateStep = (step) => {
+    let isValid = false;
+    if (step === 1) {
+      isValid = validateStepOne();
+    } else if (step === 2) {
+      isValid = validateStepTwo();
+    } else if (step === 3) {
+      isValid = validateStepThree();
+    }
+    return isValid;
+  };
 
   // Navigation handlers
   const nextStep = () => {
-    let isValid = false
-    
-    if (currentStep === 1) {
-      isValid = validateStepOne()
-    } else if (currentStep === 2) {
-      isValid = validateStepTwo()
-    }
-    
-    if (isValid && currentStep < 3) {
+    if (validateStep(currentStep) && currentStep < 3) {
       if (containerRef.current) {
-        containerRef.current.scrollTo({ top: 0, behavior: "smooth" })
+        containerRef.current.scrollTo({ top: 0, behavior: "smooth" });
       } else {
-        window.scrollTo({ top: 0, behavior: "smooth" })
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }
-      setCurrentStep((prev) => prev + 1)
-      setErrors({})
+      setCurrentStep((prev) => prev + 1);
+      setErrors({});
     }
-  }
+  };
 
   const prevStep = () => {
     if (currentStep > 1) {
       if (containerRef.current) {
-        containerRef.current.scrollTo({ top: 0, behavior: "smooth" })
+        containerRef.current.scrollTo({ top: 0, behavior: "smooth" });
       } else {
-        window.scrollTo({ top: 0, behavior: "smooth" })
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }
-      setCurrentStep((prev) => prev - 1)
-      setErrors({})
+      setCurrentStep((prev) => prev - 1);
+      setErrors({});
     }
-  }
+  };
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    
-    // If not on final step, simply advance with validation
-    if (currentStep < 3) {
-      nextStep()
-    } else {
-      // Final submission logic for step 3 with validation
-      const isValid = validateStepThree()
-      
+  // Build the product data for submission. Note: email is pulled from Redux.
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (currentStep === 3) {
+      const isValid = validateStepThree();
       if (isValid) {
-        setFormComplete(true)
-        console.log("Form submitted")
-        // Your final submission logic here.
+        const productData = {
+          title: formData.title,
+          description: formData.description,
+          images: formState.images,
+          price: parseFloat(formData.price),
+          category: formState.category,
+          subcategory: formState.subcategory,
+          brand: formState.showBrandModel ? formData.brand : undefined,
+          condition: formState.category !== "Property" ? formData.condition : undefined,
+          listingType: formState.listingType,
+          rentType: formState.listingType === "rent" ? formState.rentType : undefined,
+          propertyArea: formState.category === "Property" ? parseFloat(formData.propertyArea) : undefined,
+          state: formState.selectedState,
+          city: formData.city,
+          contactName: formData.name,
+          email: user.email, // Send email directly from Redux store
+        };
+
+        try {
+          const result = await createProductAd(productData);
+          console.log("Product ad created:", result);
+          setFormComplete(true);
+        } catch (error) {
+          console.error("Submission error:", error);
+        }
       }
     }
-  }
+  };
 
-  // Clear errors when changing steps
   useEffect(() => {
-    setErrors({})
-  }, [])
+    setErrors({});
+  }, []);
 
   if (formComplete) {
     return (
@@ -165,23 +177,26 @@ const AdForm = ({ category = "Electronics", subcategory = "Smartphones" }) => {
         <Navbar />
         <SuccessMessage setFormComplete={setFormComplete} />
       </div>
-    )
+    );
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       <Navbar />
       <div className="max-w-8xl mx-auto p-4 md:p-6">
-        <FormStepIndicator currentStep={currentStep} setCurrentStep={setCurrentStep} />
+        <FormStepIndicator 
+          currentStep={currentStep} 
+          setCurrentStep={setCurrentStep} 
+          validateStep={validateStep}
+        />
 
         <div className="grid md:grid-cols-[1fr_320px] gap-5">
           <motion.form
             ref={formRef}
             onSubmit={handleSubmit}
-            // Prevent accidental submission via Enter on steps 1 & 2.
             onKeyDown={(e) => {
               if (e.key === "Enter" && currentStep < 3) {
-                e.preventDefault()
+                e.preventDefault();
               }
             }}
             className="bg-white shadow-lg rounded-sm overflow-hidden border border-gray-100"
@@ -207,7 +222,12 @@ const AdForm = ({ category = "Electronics", subcategory = "Smartphones" }) => {
                     variants={fadeIn}
                     className="p-5 space-y-6 max-h-[70vh] overflow-y-auto"
                   >
-                    <FormStepOne formState={formState} errors={errors} />
+                    <FormStepOne
+                      formState={formState}
+                      errors={errors}
+                      formData={formData}
+                      setFormData={setFormData}
+                    />
                   </motion.div>
                 )}
 
@@ -220,7 +240,12 @@ const AdForm = ({ category = "Electronics", subcategory = "Smartphones" }) => {
                     variants={fadeIn}
                     className="p-5 space-y-6 max-h-[70vh] overflow-y-auto"
                   >
-                    <FormStepTwo formState={formState} errors={errors} />
+                    <FormStepTwo
+                      formState={formState}
+                      errors={errors}
+                      formData={formData}
+                      setFormData={setFormData}
+                    />
                   </motion.div>
                 )}
 
@@ -233,13 +258,17 @@ const AdForm = ({ category = "Electronics", subcategory = "Smartphones" }) => {
                     variants={fadeIn}
                     className="p-5 space-y-6 max-h-[70vh] overflow-y-auto"
                   >
-                    <FormStepThree formState={formState} errors={errors} />
+                    <FormStepThree
+                      formState={formState}
+                      errors={errors}
+                      formData={formData}
+                      setFormData={setFormData}
+                    />
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
 
-            {/* Error Summary */}
             {Object.keys(errors).length > 0 && (
               <motion.div 
                 initial={{ opacity: 0, height: 0 }}
@@ -254,24 +283,20 @@ const AdForm = ({ category = "Electronics", subcategory = "Smartphones" }) => {
               </motion.div>
             )}
 
-            {/* Navigation Buttons */}
             <div className="p-5 bg-gray-50 flex justify-between items-center border-t border-gray-100">
               {currentStep > 1 ? (
                 <NavigationButton onClick={prevStep} type="back" />
               ) : (
                 <div />
               )}
-
               {currentStep < 3 ? (
                 <NavigationButton onClick={nextStep} type="next" />
               ) : (
-                // On step 3, the button is of type "submit" so the form onSubmit handles submission.
                 <NavigationButton type="submit" />
               )}
             </div>
           </motion.form>
 
-          {/* Right Sidebar */}
           <div className="hidden md:flex flex-col space-y-5">
             <AdPreview formState={formState} />
             <TipsSection />
@@ -279,8 +304,8 @@ const AdForm = ({ category = "Electronics", subcategory = "Smartphones" }) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 const SuccessMessage = ({ setFormComplete }) => (
   <motion.div
@@ -329,7 +354,7 @@ const SuccessMessage = ({ setFormComplete }) => (
       <ActionButton delay={1.1} icon="eye" text="View My Ads" />
     </div>
   </motion.div>
-)
+);
 
 const NavigationButton = ({ onClick, type }) => {
   const buttonProps = {
@@ -351,9 +376,9 @@ const NavigationButton = ({ onClick, type }) => {
       className:
         "px-4 py-2 bg-black hover:bg-black/90 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-1 group shadow-md",
     },
-  }
+  };
 
-  const { text, icon, className } = buttonProps[type]
+  const { text, icon, className } = buttonProps[type];
 
   return (
     <motion.button
@@ -371,8 +396,8 @@ const NavigationButton = ({ onClick, type }) => {
         </span>
       )}
     </motion.button>
-  )
-}
+  );
+};
 
 const ActionButton = ({ delay, onClick, primary, icon, text }) => (
   <motion.button
@@ -393,6 +418,6 @@ const ActionButton = ({ delay, onClick, primary, icon, text }) => (
     </span>
     {text}
   </motion.button>
-)
+);
 
-export default AdForm
+export default AdForm;
