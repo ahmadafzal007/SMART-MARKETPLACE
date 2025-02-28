@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect } from "react";
 import {
   Search,
   X,
@@ -8,9 +8,9 @@ import {
   Truck,
   Home,
   Paintbrush,
-} from "lucide-react"
-import Navbar from "./nav"
-import CategoryModal from "./category-model"
+} from "lucide-react";
+import Navbar from "./nav";
+import CategoryModal from "./category-model";
 
 const CategoryItem = ({ icon: Icon, title, onClick }) => {
   return (
@@ -25,8 +25,8 @@ const CategoryItem = ({ icon: Icon, title, onClick }) => {
         <h3 className="text-center text-xs font-medium text-gray-800">{title}</h3>
       </div>
     </div>
-  )
-}
+  );
+};
 
 const HeroBackground = () => (
   <div className="absolute inset-0 overflow-hidden">
@@ -38,7 +38,7 @@ const HeroBackground = () => (
     <div className="absolute left-1/3 top-1/4 h-6 w-6 rounded-full bg-gray-600 opacity-20"></div>
     <div className="absolute bottom-1/3 right-1/5 h-12 w-12 rounded-full bg-gray-700 opacity-15"></div>
   </div>
-)
+);
 
 const EmptyState = ({ onReset }) => (
   <div className="border border-gray-200 bg-gray-50 py-8 text-center rounded-sm">
@@ -56,7 +56,7 @@ const EmptyState = ({ onReset }) => (
       Clear filter
     </button>
   </div>
-)
+);
 
 const SectionHeader = ({ title, icon, className = "" }) => (
   <div className={`flex items-center ${className}`}>
@@ -66,7 +66,7 @@ const SectionHeader = ({ title, icon, className = "" }) => (
       {title}
     </h2>
   </div>
-)
+);
 
 const CategorySkeleton = () => (
   <div className="animate-pulse rounded-sm border border-gray-100 bg-white p-2">
@@ -75,21 +75,21 @@ const CategorySkeleton = () => (
       <div className="h-3 w-20 rounded bg-gray-200"></div>
     </div>
   </div>
-)
+);
 
 const CategoryPage = () => {
-  const [activeFilter, setActiveFilter] = useState("All")
-  const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState(null)
+  const [activeFilter, setActiveFilter] = useState("All");
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setLoading(false)
-    }, 800)
-    return () => clearTimeout(timer)
-  }, [])
+      setLoading(false);
+    }, 800);
+    return () => clearTimeout(timer);
+  }, []);
 
   const categories = [
     {
@@ -112,7 +112,7 @@ const CategoryPage = () => {
       title: "Home Decor",
       popular: false,
     },
-  ]
+  ];
 
   const filteredCategories = categories
     .filter((cat) => activeFilter === "All" || cat.type === activeFilter)
@@ -121,28 +121,36 @@ const CategoryPage = () => {
         searchTerm === "" ||
         cat.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (cat.type && cat.type.toLowerCase().includes(searchTerm.toLowerCase()))
-    )
+    );
 
   const handleSearch = (e) => {
-    setSearchTerm(e.target.value)
-  }
+    setSearchTerm(e.target.value);
+  };
 
   const resetFilters = () => {
-    setActiveFilter("All")
-    setSearchTerm("")
-  }
+    setActiveFilter("All");
+    setSearchTerm("");
+  };
 
   const handleCategoryClick = (title) => {
-    setSelectedCategory(title)
-    setIsModalOpen(true)
-  }
+    setSelectedCategory(title);
+    setIsModalOpen(true);
+  };
+
+  const openModal = () => {
+    // If no category has been selected yet, default to "Electronics"
+    if (!selectedCategory) {
+      setSelectedCategory("Electronics");
+    }
+    setIsModalOpen(true);
+  };
 
   const closeModal = () => {
-    setIsModalOpen(false)
-  }
+    setIsModalOpen(false);
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 ">
       <Navbar />
 
       <main className="container mx-auto max-w-6xl px-4 py-8">
@@ -156,7 +164,10 @@ const CategoryPage = () => {
             <p className="mx-auto max-w-md text-xs font-medium leading-relaxed text-gray-300">
               Get millions of potential buyers for your product with our professional listing service
             </p>
-            <button className="mt-4 inline-flex items-center rounded-lg bg-white px-3 py-1 text-xs font-medium text-black transition-all hover:bg-gray-100">
+            <button
+              onClick={openModal}
+              className="mt-4 inline-flex items-center rounded-lg bg-white px-3 py-1 text-xs font-medium text-black transition-all hover:bg-gray-100"
+            >
               Get Started <ChevronRight className="ml-1 h-4 w-4" />
             </button>
           </div>
@@ -247,15 +258,20 @@ const CategoryPage = () => {
         </div>
       </main>
 
-      <CategoryModal isOpen={isModalOpen} onClose={closeModal} categories={categories} />
+      <CategoryModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        defaultCategory={selectedCategory || "Electronics"}
+        categories={categories}
+      />
 
-      <footer className="mt-6 border-t border-gray-200 bg-white py-4 text-center text-xs text-gray-500">
+      <footer className=" mt-6 min-[110rem]:mt-36 border-t border-gray-200 bg-white py-4 text-center text-xs text-gray-500">
         <div className="container mx-auto">
           <p>© {new Date().getFullYear()} Category Marketplace. All rights reserved.</p>
         </div>
       </footer>
     </div>
-  )
-}
+  );
+};
 
-export default CategoryPage
+export default CategoryPage;

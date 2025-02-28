@@ -1,24 +1,29 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router';
-import { 
-  Menu, X, Search, ChevronDown, MapPin, 
-  Globe, User, MessageSquare, Settings,
-  LogOut, Heart, Package, FileText
-} from 'lucide-react';
+import { useSelector, useDispatch } from 'react-redux';
+import { Menu, X, Search, ChevronDown, MapPin, Globe, User, MessageSquare, Settings, LogOut, Heart, Package, FileText } from 'lucide-react';
 
+import { selectUser, selectIsAuthenticated } from '../../../store/slices/userSlice';
+import { logoutUser } from '../../../store/thunks/authThunks';
 import LoginModal from '../../registration/registrationCard';
+
 import CategoriesNav from './categoriesNav';
-import authApi from '../../../api/authapi';
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState('Australia');
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [user, setUser] = useState(null);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [unreadMessages, setUnreadMessages] = useState(3);
+  
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  
+  // Get user data from Redux store
+  const user = useSelector(selectUser);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  
   const dropdownRef = useRef(null);
   const userDropdownRef = useRef(null);
 
@@ -33,21 +38,6 @@ const Navbar = () => {
     { name: 'Northern Territory', icon: <MapPin className="h-4 w-4" /> },
     { name: 'Australian Capital Territory', icon: <MapPin className="h-4 w-4" /> },
   ];
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      authApi.getProfile(token)
-        .then((data) => {
-          setUser(data.user);
-        })
-        .catch((err) => {
-          console.error('Error fetching profile:', err);
-          localStorage.removeItem('token');
-          setUser(null);
-        });
-    }
-  }, []);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -79,13 +69,11 @@ const Navbar = () => {
   };
 
   const handleLoginSuccess = (userData) => {
-    setUser(userData);
     setIsLoginModalOpen(false);
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
+    dispatch(logoutUser());
     setIsUserDropdownOpen(false);
   };
 
@@ -117,6 +105,50 @@ const Navbar = () => {
     }
   ];
 
+  // Render user avatar or fallback to initial
+  const renderUserAvatar = () => {
+    if (user?.avatar) {
+      return (
+        <img 
+          src={user.avatar || "/placeholder.svg"} 
+          alt={user.name} 
+          className="w-8 h-8 rounded-full object-cover shadow-md group-hover:shadow-lg
+            transition-shadow duration-200"
+        />
+      );
+    }
+    
+    return (
+      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-black to-gray-800
+        flex items-center justify-center text-white font-medium shadow-md group-hover:shadow-lg
+        transition-shadow duration-200">
+        {user?.name?.charAt(0).toUpperCase()}
+      </div>
+    );
+  };
+
+  // Render user avatar in dropdown
+  const renderUserAvatarLarge = () => {
+    if (user?.avatar) {
+      return (
+        <img 
+          src={user.avatar || "/placeholder.svg"} 
+          alt={user.name} 
+          className="w-12 h-12 rounded-full object-cover shadow-md
+            transition-transform duration-300 group-hover:scale-105"
+        />
+      );
+    }
+    
+    return (
+      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-black to-gray-800
+        flex items-center justify-center text-white text-lg font-medium shadow-md
+        transition-transform duration-300 group-hover:scale-105">
+        {user?.name?.charAt(0).toUpperCase()}
+      </div>
+    );
+  };
+
   return (
     <>
       <nav className="w-full bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm fixed top-0 z-50">
@@ -143,7 +175,7 @@ const Navbar = () => {
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-4">
-              {user ? (
+              {isAuthenticated ? (
                 <>
                   {/* Messages Button */}
                   <button
@@ -165,11 +197,7 @@ const Navbar = () => {
                       className="flex items-center space-x-2 p-1.5 rounded-full hover:bg-gray-100 transition-all duration-200
                         focus:outline-none focus:ring-2 focus:ring-gray-200 group"
                     >
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-black to-gray-800
-                        flex items-center justify-center text-white font-medium shadow-md group-hover:shadow-lg
-                        transition-shadow duration-200">
-                        {user.name?.charAt(0).toUpperCase()}
-                      </div>
+                      {renderUserAvatar()}
                     </button>
 
                     {isUserDropdownOpen && (
@@ -179,17 +207,13 @@ const Navbar = () => {
                         <div className="px-6 py-5 bg-gradient-to-br from-gray-50 to-gray-100">
                           <div className="flex items-center space-x-4">
                             <div className="relative group">
-                              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-black to-gray-800
-                                flex items-center justify-center text-white text-lg font-medium shadow-md
-                                transition-transform duration-300 group-hover:scale-105">
-                                {user.name?.charAt(0).toUpperCase()}
-                              </div>
+                              {renderUserAvatarLarge()}
                               <div className="absolute inset-0 rounded-full bg-white opacity-0 group-hover:opacity-10 
                                 transition-opacity duration-300"></div>
                             </div>
                             <div className="space-y-1">
-                              <h3 className="text-sm font-semibold text-gray-900">{user.name}</h3>
-                              <p className="text-xs text-gray-500">{user.email}</p>
+                              <h3 className="text-sm font-semibold text-gray-900">{user?.name}</h3>
+                              <p className="text-xs text-gray-500">{user?.email}</p>
                             </div>
                           </div>
                         </div>
@@ -229,7 +253,7 @@ const Navbar = () => {
               {/* SELL Button */}
               <button
                 onClick={() => {
-                  if (user) {
+                  if (isAuthenticated) {
                     navigate('/categories');
                   } else {
                     setIsLoginModalOpen(true);
@@ -345,7 +369,7 @@ const Navbar = () => {
         <div className="px-4 py-6 space-y-6">
           {/* Mobile Login / Profile / Sell / etc. */}
           <div className="grid grid-cols-2 gap-3">
-            {user ? (
+            {isAuthenticated ? (
               <>
                 {/* Chat Button */}
                 <button
@@ -355,6 +379,7 @@ const Navbar = () => {
                   <MessageSquare className="h-3 w-3 mr-2" />
                   <span>Chat</span>
                 </button>
+              
                 {/* Profile Button */}
                 <button
                   onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
@@ -386,13 +411,23 @@ const Navbar = () => {
                   <Heart className="h-3 w-3 mr-2" />
                   <span>Items</span>
                 </button>
+            
                 {/* Logout Button */}
                 <button
                   onClick={handleLogout}
-                  className="col-span-2 w-full px-4 py-3 text-white font-medium rounded-lg bg-red-900 hover:bg-red-900/80 active:bg-red-700 shadow-inner transition-all duration-200 flex items-center justify-center"
+                  className="w-full px-4 py-3 text-white font-medium rounded-lg bg-red-900 hover:bg-red-900/80 active:bg-red-700 transition-all duration-200 flex items-center justify-center"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
-                  <div className="text-sm">Logout</div>
+                  <span className="mr-1">Logout</span>
+                </button>
+
+                {/* SELL Button for logged in users */}
+                <button
+                  onClick={() => navigate('/categories')}
+                  className="w-full px-4 py-3 text-white font-medium rounded-lg bg-gray-800 hover:bg-gray-700 active:bg-gray-900 transition-all duration-200 flex items-center justify-center"
+                >
+                  <span className="mr-1">SELL</span>
+                  <span className="text-lg">+</span>
                 </button>
               </>
             ) : (
@@ -405,7 +440,7 @@ const Navbar = () => {
                 </button>
                 <button
                   onClick={() => {
-                    if (user) {
+                    if (isAuthenticated) {
                       navigate('/categories');
                     } else {
                       setIsLoginModalOpen(true);

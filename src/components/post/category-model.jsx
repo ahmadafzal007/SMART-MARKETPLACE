@@ -1,4 +1,3 @@
-// category-model.jsx
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ChevronRight, Car, Home, ShoppingBag, Laptop, Check } from "lucide-react";
@@ -9,7 +8,7 @@ const CategoryModal = ({ isOpen, onClose, defaultCategory = "Electronics", categ
   const [selectedCategory, setSelectedCategory] = useState(defaultCategory);
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
 
-  // When the default changes (from parent) update our state
+  // Update local state when defaultCategory (from parent) changes
   useEffect(() => {
     setSelectedCategory(defaultCategory);
     setSelectedSubcategory(null);
@@ -203,16 +202,16 @@ const CategoryModal = ({ isOpen, onClose, defaultCategory = "Electronics", categ
           </div>
         </div>
         {/* Footer */}
-        <div className="absolute bottom-8 left-0 right-0 border-t bg-white p-3 shadow-inner">
-          <div className="flex items-center justify-between">
-            <div className="text-xs text-gray-500">
+        <div className="absolute bottom-8 bg-gray-50 left-0 right-0 border-t  p-3 shadow-inner">
+          <div className="flex items-center  justify-between">
+            <div className="text-xs mb-3 text-gray-500">
               {selectedSubcategory
                 ? `Selected: ${selectedCategory} > ${selectedSubcategory}`
                 : "Select a subcategory to continue"}
             </div>
             <button
               onClick={handleContinue}
-              className={`rounded-md px-5 py-1.5 text-xs font-medium transition-all ${
+              className={`rounded-md px-5 mb-3 py-1.5 text-xs font-medium transition-all ${
                 selectedSubcategory
                   ? "bg-gray-900 text-white hover:bg-black shadow-sm"
                   : "bg-gray-200 text-gray-400 cursor-not-allowed"

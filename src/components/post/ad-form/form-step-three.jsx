@@ -1,11 +1,14 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { MapPin, Smartphone, AlertCircle } from "lucide-react"
+import { MapPin, Smartphone, AlertCircle } from 'lucide-react'
 import { staggerContainer, staggerItem } from "./animations"
+import { useSelector } from 'react-redux'
+import { selectUser } from '../../../store/slices/userSlice'
 
 const FormStepThree = ({ formState, errors = {} }) => {
   const { selectedState, setSelectedState, cities, australianStates, category } = formState
+  const user = useSelector(selectUser)
 
   return (
     <motion.div variants={staggerContainer} initial="hidden" animate="visible">
@@ -117,6 +120,7 @@ const FormStepThree = ({ formState, errors = {} }) => {
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
               id="name"
               placeholder="Your name"
+              defaultValue={user?.name || ''}
               className={`w-full border rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-300 ${
                 errors.name ? "border-red-300 bg-red-50" : "border-gray-200"
               }`}
@@ -155,4 +159,3 @@ const FormStepThree = ({ formState, errors = {} }) => {
 }
 
 export default FormStepThree
-
