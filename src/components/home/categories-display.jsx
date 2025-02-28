@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { fetchRandomProducts } from '../../api/productapi';
-import ProductCard from './ProductCard';
+import ProductCard from './productCard';
 
 const CACHE_KEY = 'marketplace_categories';
 const CACHE_DURATION = 5 * 60 * 60 * 1000; // 5 hours in milliseconds
