@@ -1,8 +1,11 @@
+// Global API configuration
+export const API_ENDPOINT = 'https://3.110.40.239/api';
+
 // frontend/src/api/productService.js
 export const createProductAd = async (productData) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch('http://localhost:5000/api/products', {
+      const response = await fetch(`${API_ENDPOINT}/products`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -27,7 +30,7 @@ export const createProductAd = async (productData) => {
   // frontend/src/api/randomProductsApi.js
 export const fetchRandomProducts = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/products/random');
+      const response = await fetch(`${API_ENDPOINT}/products/random`);
       if (!response.ok) {
         throw new Error('Failed to fetch random products');
       }
@@ -43,7 +46,7 @@ export const fetchRandomProducts = async () => {
   // frontend/src/api/productDetailsApi.js
 export const fetchProductById = async (id) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/products/${id}`);
+      const response = await fetch(`${API_ENDPOINT}/products/${id}`);
       if (!response.ok) {
         throw new Error('Failed to fetch product details');
       }
