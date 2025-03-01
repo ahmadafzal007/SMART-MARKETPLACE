@@ -59,6 +59,11 @@ const ProductPage = () => {
   const [isLiked, setIsLiked] = useState(false);
   const [imagesLoaded, setImagesLoaded] = useState([]);
 
+  // Add scroll to top effect
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
