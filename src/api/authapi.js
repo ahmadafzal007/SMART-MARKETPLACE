@@ -1,11 +1,5 @@
 import axios from 'axios';
-
-// Base URL for the auth API (update REACT_APP_API_BASE_URL in your .env file)
-// For example: REACT_APP_API_BASE_URL=http://localhost:5000/api/auth
-const API_BASE_URL =
-  (typeof process !== 'undefined' && process.env.REACT_APP_API_BASE_URL)
-    ? process.env.REACT_APP_API_BASE_URL
-    : 'http://localhost:5002/api/auth';
+import { AUTH_BASE_URL, getAuthHeaders } from './index';
 
 /**
  * Registers a new user.
@@ -15,7 +9,7 @@ const API_BASE_URL =
  */
 export const register = async (data) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/register`, data);
+    const response = await axios.post(`${AUTH_BASE_URL}/register`, data);
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : error;
@@ -30,7 +24,7 @@ export const register = async (data) => {
  */
 export const login = async (data) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/login`, data);
+    const response = await axios.post(`${AUTH_BASE_URL}/login`, data);
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : error;
@@ -45,10 +39,8 @@ export const login = async (data) => {
  */
 export const getProfile = async (token) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/profile`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    const response = await axios.get(`${AUTH_BASE_URL}/profile`, {
+      headers: getAuthHeaders(token),
     });
     return response.data;
   } catch (error) {
@@ -65,10 +57,8 @@ export const getProfile = async (token) => {
  */
 export const updateProfile = async (token, data) => {
   try {
-    const response = await axios.put(`${API_BASE_URL}/profile`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    const response = await axios.put(`${AUTH_BASE_URL}/profile`, data, {
+      headers: getAuthHeaders(token),
     });
     return response.data;
   } catch (error) {
@@ -82,9 +72,9 @@ const googleAuth = () => {
     height = 600;
   const left = window.screen.width / 2 - width / 2;
   const top = window.screen.height / 2 - height / 2;
-  // Open the Google auth flow in a popup window.
+  
   window.open(
-    `${API_BASE_URL}/google`,
+    `${AUTH_BASE_URL}/google`,
     'GoogleAuth',
     `width=${width},height=${height},top=${top},left=${left}`
   );
@@ -103,7 +93,7 @@ const googleAuth = () => {
 // Function to call the forgot password endpoint
 export const forgotPassword = async (email) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/forgot-password`, { email });
+    const response = await axios.post(`${AUTH_BASE_URL}/forgot-password`, { email });
     return response.data;
   } catch (error) {
     throw error.response?.data || error;
@@ -113,7 +103,7 @@ export const forgotPassword = async (email) => {
 // Function to call the reset password endpoint
 export const resetPassword = async (email, verificationCode, newPassword) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/reset-password`, {
+    const response = await axios.post(`${AUTH_BASE_URL}/reset-password`, {
       email,
       verificationCode,
       newPassword,
@@ -124,7 +114,7 @@ export const resetPassword = async (email, verificationCode, newPassword) => {
   }
 };
 
-// Optionally export as a single object for easier imports
+// Export as a single object for easier imports
 const authApi = {
   register,
   login,

@@ -1,17 +1,14 @@
 // Global API configuration
 import axios from "axios"
-export const API_ENDPOINT = 'http://localhost:5002/api';
+import { PRODUCTS_BASE_URL, getAuthHeaders } from './index';
 
 // frontend/src/api/productService.js
 export const createProductAd = async (productData) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`${API_ENDPOINT}/products`, {
+      const response = await fetch(`${PRODUCTS_BASE_URL}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': token ? `Bearer ${token}` : '',
-        },
+        headers: getAuthHeaders(token),
         body: JSON.stringify(productData),
       });
   
@@ -54,7 +51,7 @@ export const fetchProductsByCategory = async (category, page = 1, filters = null
       params.sort = sort;
     }
 
-    const response = await axios.get(`${API_ENDPOINT}/products/category/${category}`, { params });
+    const response = await axios.get(`${PRODUCTS_BASE_URL}/category/${category}`, { params });
     return response.data; // Now returns { products: [], pagination: {} } directly
   } catch (error) {
     console.error(`Error fetching products for category ${category}:`, error);
@@ -65,7 +62,7 @@ export const fetchProductsByCategory = async (category, page = 1, filters = null
 // frontend/src/api/randomProductsApi.js
 export const fetchRandomProducts = async () => {
     try {
-      const response = await fetch(`${API_ENDPOINT}/products/random`);
+      const response = await fetch(`${PRODUCTS_BASE_URL}/random`);
       if (!response.ok) {
         throw new Error('Failed to fetch random products');
       }
@@ -80,7 +77,7 @@ export const fetchRandomProducts = async () => {
 // frontend/src/api/productDetailsApi.js
 export const fetchProductById = async (id) => {
     try {
-      const response = await fetch(`${API_ENDPOINT}/products/${id}`);
+      const response = await fetch(`${PRODUCTS_BASE_URL}/${id}`);
       if (!response.ok) {
         throw new Error('Failed to fetch product details');
       }

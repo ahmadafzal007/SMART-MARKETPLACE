@@ -1,4 +1,6 @@
 // src/api/filterProductsApi.js
+import { FILTERS_BASE_URL } from './index';
+
 export const filterProducts = async (filters = {}) => {
     // Create a new URLSearchParams object
     const params = new URLSearchParams();
@@ -15,7 +17,7 @@ export const filterProducts = async (filters = {}) => {
     });
 
     try {
-      const response = await fetch(`http://localhost:5002/api/filters/filter?${params.toString()}`);
+      const response = await fetch(`${FILTERS_BASE_URL}/filter?${params.toString()}`);
       if (!response.ok) {
         throw new Error("Failed to fetch filtered products");
       }
