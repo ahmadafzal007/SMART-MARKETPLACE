@@ -1,4 +1,3 @@
-// frontend/src/pages/ProductPage.jsx
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { useParams } from 'react-router-dom';
 import { 
@@ -21,8 +20,10 @@ const Footer = lazy(() => import('../../components/home/footer'));
 
 // Skeleton loaders
 const ImageSkeleton = () => (
-  <div className="animate-pulse bg-gray-200 h-[450px] rounded-xl flex items-center justify-center">
-    <div className="w-16 h-16 border-4 border-gray-300 border-t-gray-400 rounded-full animate-spin" />
+  <div className="animate-pulse bg-gray-200 w-full h-[450px] rounded-xl flex items-center justify-center">
+    <div className="w-16 h-16 relative">
+      <div className="absolute  inset-0 border-4 border-gray-300 border-t-gray-400 rounded-full animate-spin" />
+    </div>
   </div>
 );
 
@@ -146,17 +147,17 @@ const ProductPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Image Gallery */}
           <div className="lg:col-span-2 h-full">
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden h-full">
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden h-full flex items-center">
               {loading ? (
                 <ImageSkeleton />
               ) : (
-                <div className="relative h-full min-h-[450px]">
+                <div className="relative w-full aspect-[4/3] max-h-[calc(100vh-32rem)]">
                   <span className="absolute top-3 left-3 z-10 bg-yellow-400 text-yellow-900 px-2 py-0.5 rounded-md text-xs font-medium">
                     FEATURED
                   </span>
                   {!imagesLoaded.includes(currentImageIndex) && (
                     <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-                      <div className="w-10 h-10 border-4 border-gray-300 border-t-gray-400 rounded-full animate-spin" />
+                      <div className="w-12 h-12 border-[3px] border-gray-300 border-t-gray-400 rounded-full animate-spin" />
                     </div>
                   )}
                   <img
@@ -198,7 +199,7 @@ const ProductPage = () => {
                 <div className="flex justify-between items-start mb-3">
                   <div>
                     <h1 className="text-2xl font-bold">
-                      Rs {foundProduct.price.toLocaleString()}
+                      $ {foundProduct.price.toLocaleString()}
                       {foundProduct.rentType && (
                         <span className="text-sm font-medium text-gray-500 ml-1">{formatRentType(foundProduct.rentType)}</span>
                       )}
@@ -305,6 +306,33 @@ const ProductPage = () => {
       <Suspense fallback={<div className="h-16 bg-gray-100 animate-pulse" />}>
         <Footer />
       </Suspense>
+
+      {/* CSS Animations & Utilities */}
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.25s ease-out;
+        }
+        @keyframes gradient {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .animate-gradient {
+          background-size: 200% 200%;
+          animation: gradient 3s ease infinite;
+        }
+        @keyframes spin-reverse {
+          from { transform: rotate(360deg); }
+          to { transform: rotate(0deg); }
+        }
+        .animate-spin-reverse {
+          animation: spin-reverse 1s linear infinite;
+        }
+      `}</style>
     </div>
   );
 };

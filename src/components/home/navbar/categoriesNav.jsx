@@ -78,7 +78,7 @@ const CategoriesNav = () => {
               {activeDropdown === 'categories' && (
                 <div
                   className="absolute top-full left-0 mt-2 w-full md:w-[600px] bg-white shadow-xl 
-                    border border-gray-200 rounded-lg z-50 p-4 md:p-6 animate-fadeIn"
+                    border border-gray-200 rounded-lg z-20 p-4 md:p-6 animate-fadeIn"
                 >
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                     {Object.entries(categories).map(([category, { icon, items }]) => (
@@ -129,7 +129,7 @@ const CategoriesNav = () => {
                     flex items-center space-x-1.5 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full"
                 >
                   <Car className="h-3.5 w-3.5" />
-                  <span>Cars</span>
+                  <span>Vehicles</span>
                 </a>
              
                 <a

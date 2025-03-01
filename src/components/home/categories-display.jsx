@@ -1,42 +1,46 @@
-// frontend/src/components/MarketplaceCategories.jsx
-import React, { useState, useEffect } from 'react';
-import { ChevronRight } from 'lucide-react';
-import { fetchRandomProducts } from '../../api/productapi';
-import ProductCard from './productCard';
+"use client"
 
-const CACHE_KEY = 'marketplace_categories';
-const CACHE_DURATION = 5 * 60 * 60 * 1000; // 5 hours in milliseconds
+import { useState, useEffect } from "react"
+import { ChevronRight } from "lucide-react"
+import { fetchRandomProducts } from "../../api/productapi"
+import ProductCard from "./productCard"
+import { useNavigate } from "react-router-dom"
+
+const CACHE_KEY = "marketplace_categories"
+const CACHE_DURATION = 5 * 60 * 60 * 1000 // 5 hours in milliseconds
 
 const MarketplaceCategories = () => {
-  const [categoriesData, setCategoriesData] = useState([]);
-  const [hoveredCard, setHoveredCard] = useState(null);
-  const [likedItems, setLikedItems] = useState(new Set());
+  const [categoriesData, setCategoriesData] = useState([])
+  const [hoveredCard, setHoveredCard] = useState(null)
+  const [likedItems, setLikedItems] = useState(new Set())
+  const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
 
   // Helper function to compute relative time (e.g., "2 days ago")
   const timeAgo = (date) => {
-    const seconds = Math.floor((new Date() - date) / 1000);
-    let interval = Math.floor(seconds / 31536000);
+    const seconds = Math.floor((new Date() - date) / 1000)
+    let interval = Math.floor(seconds / 31536000)
     if (interval >= 1) {
-      return interval + " year" + (interval > 1 ? "s" : "") + " ago";
+      return interval + " year" + (interval > 1 ? "s" : "") + " ago"
     }
-    interval = Math.floor(seconds / 2592000);
+    interval = Math.floor(seconds / 2592000)
     if (interval >= 1) {
-      return interval + " month" + (interval > 1 ? "s" : "") + " ago";
+      return interval + " month" + (interval > 1 ? "s" : "") + " ago"
     }
-    interval = Math.floor(seconds / 86400);
+    interval = Math.floor(seconds / 86400)
     if (interval >= 1) {
-      return interval + " day" + (interval > 1 ? "s" : "") + " ago";
+      return interval + " day" + (interval > 1 ? "s" : "") + " ago"
     }
-    interval = Math.floor(seconds / 3600);
+    interval = Math.floor(seconds / 3600)
     if (interval >= 1) {
-      return interval + " hour" + (interval > 1 ? "s" : "") + " ago";
+      return interval + " hour" + (interval > 1 ? "s" : "") + " ago"
     }
-    interval = Math.floor(seconds / 60);
+    interval = Math.floor(seconds / 60)
     if (interval >= 1) {
-      return interval + " minute" + (interval > 1 ? "s" : "") + " ago";
+      return interval + " minute" + (interval > 1 ? "s" : "") + " ago"
     }
-    return Math.floor(seconds) + " seconds ago";
-  };
+    return Math.floor(seconds) + " seconds ago"
+  }
 
   const transformData = (randomData) => {
     const transformed = Object.keys(randomData).map((key) => ({
@@ -51,115 +55,133 @@ const MarketplaceCategories = () => {
         location: `${product.city}, ${product.state}`,
         time: timeAgo(new Date(product.createdAt)),
       })),
-    }));
-    return transformed.filter(category => category.items && category.items.length > 0);
-  };
+    }))
+    return transformed.filter((category) => category.items && category.items.length > 0)
+  }
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true)
         // Check cache first
-        const cachedData = localStorage.getItem(CACHE_KEY);
+        const cachedData = localStorage.getItem(CACHE_KEY)
         if (cachedData) {
-          const { data, expiry } = JSON.parse(cachedData);
+          const { data, expiry } = JSON.parse(cachedData)
           // Check if cache is still valid
           if (expiry > Date.now()) {
-            setCategoriesData(data);
-            return;
+            setCategoriesData(data)
+            setLoading(false)
+            return
           } else {
             // Clear expired cache
-            localStorage.removeItem(CACHE_KEY);
+            localStorage.removeItem(CACHE_KEY)
           }
         }
 
         // Fetch fresh data if no cache or cache expired
-        const randomData = await fetchRandomProducts();
-        const transformed = transformData(randomData);
-        
+        const randomData = await fetchRandomProducts()
+        const transformed = transformData(randomData)
+
         // Cache the transformed data
         const cacheData = {
           data: transformed,
-          expiry: Date.now() + CACHE_DURATION
-        };
-        localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
-        
-        setCategoriesData(transformed);
-      } catch (error) {
-        console.error('Error loading random products:', error);
-      }
-    };
+          expiry: Date.now() + CACHE_DURATION,
+        }
+        localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData))
 
-    fetchData();
-  }, []);
+        setCategoriesData(transformed)
+      } catch (error) {
+        console.error("Error loading random products:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
 
   const toggleLike = (itemTitle) => {
     setLikedItems((prev) => {
-      const newSet = new Set(prev);
+      const newSet = new Set(prev)
       if (newSet.has(itemTitle)) {
-        newSet.delete(itemTitle);
+        newSet.delete(itemTitle)
       } else {
-        newSet.add(itemTitle);
+        newSet.add(itemTitle)
       }
-      return newSet;
-    });
-  };
+      return newSet
+    })
+  }
+
+  const handleViewAll = (category) => {
+    // Always navigate to page 1 when viewing all
+    navigate(`/category/${category}?page=1`)
+  }
 
   return (
     <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-8 font-['Plus_Jakarta_Sans']">
-      {categoriesData.map((category) => (
-        // Only render a category block if there are items.
-        category.items.length > 0 && (
-          <div key={category.title} className="space-y-4">
-            <div className="flex justify-between items-center">
-              <div className="space-y-0.5">
-                <h2 className="text-lg sm:text-xl font-bold text-gray-800 tracking-tight font-['Inter']">
-                  {category.title}
-                </h2>
-                <p className="text-xs text-gray-500">
-                  Browse the latest {category.title.toLowerCase()} listings
-                </p>
-              </div>
-              <button className="group flex items-center space-x-1 text-blue-600 hover:text-blue-700 text-xs font-semibold transition-colors font-['Inter']">
-                <span>View all</span>
-                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-              </button>
-            </div>
-
-            {/* Desktop grid view */}
-            <div className="relative">
-              <div className="grid sm:grid-cols-2 lg:grid-cols-4 sm:gap-4 hidden sm:grid">
-                {category.items.map((item) => (
-                  <ProductCard
-                    key={item.id}
-                    item={item}
-                    hoveredCard={hoveredCard}
-                    setHoveredCard={setHoveredCard}
-                    likedItems={likedItems}
-                    toggleLike={toggleLike}
-                  />
-                ))}
-              </div>
-
-              {/* Mobile horizontal scroll view */}
-              <div className="flex gap-3 overflow-x-auto pb-4 sm:hidden -mx-4 px-4 scroll-smooth scrollbar-hide">
-                {category.items.map((item) => (
-                  <div className="w-[280px] flex-shrink-0" key={item.id}>
-                    <ProductCard
-                      item={item}
-                      hoveredCard={hoveredCard}
-                      setHoveredCard={setHoveredCard}
-                      likedItems={likedItems}
-                      toggleLike={toggleLike}
-                    />
+      {loading ? (
+        <div className="flex justify-center items-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+        </div>
+      ) : (
+        categoriesData.map(
+          (category) =>
+            // Only render a category block if there are items.
+            category.items.length > 0 && (
+              <div key={category.title} className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <div className="space-y-0.5">
+                    <h2 className="text-lg sm:text-xl font-bold text-gray-800 tracking-tight font-['Inter']">
+                      {category.title}
+                    </h2>
+                    <p className="text-xs text-gray-500">Browse the latest {category.title.toLowerCase()} listings</p>
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )
-      ))}
-    </div>
-  );
-};
+                  <button
+                    onClick={() => handleViewAll(category.title)}
+                    className="group flex items-center space-x-1 text-blue-600 hover:text-blue-700 text-xs font-semibold transition-colors font-['Inter']"
+                  >
+                    <span>View all</span>
+                    <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                  </button>
+                </div>
 
-export default MarketplaceCategories;
+                {/* Desktop grid view */}
+                <div className="relative">
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-4 sm:gap-4 hidden sm:grid">
+                    {category.items.slice(0, 4).map((item) => (
+                      <ProductCard
+                        key={item.id}
+                        item={item}
+                        hoveredCard={hoveredCard}
+                        setHoveredCard={setHoveredCard}
+                        likedItems={likedItems}
+                        toggleLike={toggleLike}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Mobile horizontal scroll view */}
+                  <div className="flex gap-3 overflow-x-auto pb-4 sm:hidden -mx-4 px-4 scroll-smooth scrollbar-hide">
+                    {category.items.map((item) => (
+                      <div className="w-[280px] flex-shrink-0" key={item.id}>
+                        <ProductCard
+                          item={item}
+                          hoveredCard={hoveredCard}
+                          setHoveredCard={setHoveredCard}
+                          likedItems={likedItems}
+                          toggleLike={toggleLike}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ),
+        )
+      )}
+    </div>
+  )
+}
+
+export default MarketplaceCategories
+

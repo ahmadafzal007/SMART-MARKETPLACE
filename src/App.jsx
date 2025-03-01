@@ -8,6 +8,7 @@ import Home from "./pages/home";
 import ProductPage from "./pages/product/product-display";
 import Categories from "./pages/categories";
 import Add from "./pages/add";
+import AllCategoryProducts from "./pages/product/productspage";
 import "./App.css";
 
 // App component with Redux integration
@@ -25,6 +26,7 @@ const AppContent = () => {
       <Route path="/product/:productId" element={<ProductPage />} />
       <Route path="/categories" element={<Categories />} />
       <Route path="/add" element={<Add />} />
+      <Route path="/category/:category" element={<AllCategoryProducts />} />
     </Routes>
   );
 };

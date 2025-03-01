@@ -1,5 +1,6 @@
 // Global API configuration
-export const API_ENDPOINT = 'https://3.110.40.239/api';
+import axios from "axios"
+export const API_ENDPOINT = 'http://localhost:5002/api';
 
 // frontend/src/api/productService.js
 export const createProductAd = async (productData) => {
@@ -26,8 +27,42 @@ export const createProductAd = async (productData) => {
     }
   };
   
+// Fetch products by category with pagination
+export const fetchProductsByCategory = async (category, page = 1, filters = null, sort = null) => {
+  try {
+    const params = { page };
 
-  // frontend/src/api/randomProductsApi.js
+    // Add filters if provided
+    if (filters) {
+      if (filters.priceRange) {
+        params.minPrice = filters.priceRange[0];
+        params.maxPrice = filters.priceRange[1];
+      }
+      if (filters.condition?.length > 0) {
+        params.condition = filters.condition;
+      }
+      if (filters.listingType?.length > 0) {
+        params.listingType = filters.listingType;
+      }
+      if (filters.location) {
+        params.location = filters.location;
+      }
+    }
+
+    // Add sort if provided
+    if (sort) {
+      params.sort = sort;
+    }
+
+    const response = await axios.get(`${API_ENDPOINT}/products/category/${category}`, { params });
+    return response.data; // Now returns { products: [], pagination: {} } directly
+  } catch (error) {
+    console.error(`Error fetching products for category ${category}:`, error);
+    throw error;
+  }
+};
+
+// frontend/src/api/randomProductsApi.js
 export const fetchRandomProducts = async () => {
     try {
       const response = await fetch(`${API_ENDPOINT}/products/random`);
@@ -42,8 +77,7 @@ export const fetchRandomProducts = async () => {
     }
   };
   
-
-  // frontend/src/api/productDetailsApi.js
+// frontend/src/api/productDetailsApi.js
 export const fetchProductById = async (id) => {
     try {
       const response = await fetch(`${API_ENDPOINT}/products/${id}`);
@@ -57,4 +91,3 @@ export const fetchProductById = async (id) => {
       throw error;
     }
   };
-  
