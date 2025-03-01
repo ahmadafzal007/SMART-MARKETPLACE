@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Menu, X, Search, ChevronDown, MapPin, Globe, User, MessageSquare, Settings, LogOut, Heart, Package, FileText } from 'lucide-react';
 
@@ -9,7 +9,7 @@ import LoginModal from '../../registration/registrationCard';
 
 import CategoriesNav from './categoriesNav';
 
-const Navbar = () => {
+const Navbar = ({ onLocationChange }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState('Australia');
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -18,6 +18,7 @@ const Navbar = () => {
   const [unreadMessages, setUnreadMessages] = useState(3);
   
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   
   // Get user data from Redux store
@@ -147,6 +148,27 @@ const Navbar = () => {
         {user?.name?.charAt(0).toUpperCase()}
       </div>
     );
+  };
+
+  // Update the location selection logic
+  const handleLocationSelect = (state) => {
+    setSelectedLocation(state.name);
+    toggleDropdown('location');
+    
+    const currentPath = location.pathname;
+    
+    if (currentPath.startsWith('/category/')) {
+      // Emit location change event instead of navigating
+      onLocationChange?.(state.name === 'Australia' ? null : state.name);
+    } else {
+      // If not on category page, use original navigation logic
+      const params = new URLSearchParams();
+      params.set('page', '1');
+      if (state.name !== 'Australia') {
+        params.set('state', state.name);
+      }
+      navigate(`/category/all?${params.toString()}`);
+    }
   };
 
   return (
@@ -318,19 +340,10 @@ const Navbar = () => {
                 {activeDropdown === 'location' && (
                   <div className="absolute top-full left-0 mt-2 w-full md:w-64 rounded-lg bg-white 
                     shadow-lg border border-gray-200 py-1 z-50 animate-fadeIn">
-                    <button className="w-full text-left px-4 py-2.5 text-blue-600 hover:bg-blue-50 
-                      transition-colors duration-200 flex items-center space-x-2 border-b 
-                      border-gray-100 text-sm font-medium">
-                      <MapPin className="h-4 w-4" />
-                      <span>Use current location</span>
-                    </button>
                     {australianStates.map((state) => (
                       <button
                         key={state.name}
-                        onClick={() => {
-                          setSelectedLocation(state.name);
-                          toggleDropdown('location');
-                        }}
+                        onClick={() => handleLocationSelect(state)}
                         className="w-full text-left px-4 py-2.5 text-gray-700 hover:bg-gray-50 
                           transition-colors duration-200 text-sm flex items-center space-x-2"
                       >

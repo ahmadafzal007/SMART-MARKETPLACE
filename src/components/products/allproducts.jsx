@@ -5,6 +5,7 @@ import { useParams, useSearchParams, useNavigate } from "react-router-dom"
 import { filterProducts } from "../../api/filterProductsApi"
 import HorizontalProductCard from "./horizontalProductCard"
 import { ChevronDown, X, SlidersHorizontal, ArrowUpDown } from "lucide-react"
+import Navbar from "../home/navbar/navbar"
 
 const AllProducts = () => {
   const { category } = useParams()
@@ -183,6 +184,7 @@ const AllProducts = () => {
       try {
         setLoading(true)
         setError(null)
+        setProducts(currentPage === 1 ? [] : products) // Clear products when on first page
 
         // Prepare filter parameters for API
         const filterParams = {
@@ -394,436 +396,469 @@ const AllProducts = () => {
     setCurrentPage(1)
   }
 
+  // Handle location change from Navbar
+  const handleLocationChange = (newState) => {
+    setCurrentPage(1); // Reset to page 1
+    
+    // Update filters with new state
+    setFilters(prev => {
+      const newFilters = { ...prev };
+      if (newState) {
+        newFilters.state = newState;
+      } else {
+        delete newFilters.state;
+      }
+      return newFilters;
+    });
+
+    // Update URL params
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('page', '1');
+    if (newState) {
+      newParams.set('state', newState);
+    } else {
+      newParams.delete('state');
+    }
+    setSearchParams(newParams);
+  };
+
   return (
-    <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 font-['Plus_Jakarta_Sans']">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 tracking-tight font-['Inter']">
-          {filters.category || formatCategoryName(category)}
-        </h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Browse all {(filters.category || formatCategoryName(category)).toLowerCase()} listings
-          {!loading && products.length > 0 && ` (${pagination.totalItems} items)`}
-        </p>
-      </div>
-
-      {/* Filter controls - Mobile toggle */}
-      <div className="lg:hidden flex justify-between items-center mb-4">
-        <button
-          onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
-        >
-          <SlidersHorizontal className="w-4 h-4" />
-          {showFilters ? "Hide Filters" : "Show Filters"}
-          {isFilterApplied && <span className="w-2 h-2 bg-blue-600 rounded-full"></span>}
-        </button>
-
-        <div className="relative">
-          <select
-            value={filters.sort}
-            onChange={(e) => handleFilterChange("sort", e.target.value)}
-            className="appearance-none pl-3 pr-8 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            {sortOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          <ArrowUpDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
+    <>
+      <Navbar onLocationChange={handleLocationChange} />
+      <div className="max-w-[1400px] md:mt-8 mx-auto px-4 sm:px-6 lg:px-8 py-6 font-['Plus_Jakarta_Sans']">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-800 tracking-tight font-['Inter']">
+            {filters.category || formatCategoryName(category)}
+          </h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Browse all {(filters.category || formatCategoryName(category)).toLowerCase()} listings
+            {!loading && products.length > 0 && ` (${pagination.totalItems} items)`}
+          </p>
         </div>
-      </div>
 
-      {/* Main content with filters */}
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Filters sidebar - Desktop always visible, mobile conditional */}
-        <div className={`lg:w-64 flex-shrink-0 ${showFilters ? "block" : "hidden lg:block"}`}>
-          <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 sticky top-4">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-semibold text-gray-800">Filters</h3>
-              {isFilterApplied && (
-                <button 
-                  onClick={clearAllFilters} 
-                  className="text-xs bg-gray-900 text-white px-3 py-1.5 rounded-md hover:bg-gray-800 transition-colors"
-                >
-                  Clear all
-                </button>
-              )}
-            </div>
+        {/* Filter controls - Mobile toggle */}
+        <div className="lg:hidden flex justify-between items-center mb-4">
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            {showFilters ? "Hide Filters" : "Show Filters"}
+            {isFilterApplied && <span className="w-2 h-2 bg-blue-600 rounded-full"></span>}
+          </button>
 
-            {/* Category filter */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-              <div className="relative">
-                <select
-                  value={filters.category}
-                  onChange={(e) => handleFilterChange("category", e.target.value)}
-                  className="block w-full rounded-md border border-gray-300 py-2 pl-3 pr-10 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                >
-                  <option value="">All Categories</option>
-                  {Object.keys(categories).map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Subcategory filter - only show if category is selected */}
-            {filters.category && availableSubcategories.length > 0 && (
-              <div className="mb-4">
-                <div className="flex justify-between items-center mb-1">
-                  <label className="block text-sm font-medium text-gray-700">Subcategory</label>
-                  {filters.subcategory && (
-                    <button
-                      onClick={() => clearFilter("subcategory")}
-                      className="text-xs text-gray-500 hover:text-gray-700"
-                    >
-                      Clear
-                    </button>
-                  )}
-                </div>
-                <div className="relative">
-                  <select
-                    value={filters.subcategory}
-                    onChange={(e) => handleFilterChange("subcategory", e.target.value)}
-                    className="block w-full rounded-md border border-gray-300 py-2 pl-3 pr-10 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  >
-                    <option value="">All Subcategories</option>
-                    {availableSubcategories.map((subcat) => (
-                      <option key={subcat} value={subcat}>
-                        {subcat}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            )}
-
-            {/* State filter */}
-            <div className="mb-4">
-              <div className="flex justify-between items-center mb-1">
-                <label className="block text-sm font-medium text-gray-700">State</label>
-                {filters.state && (
-                  <button onClick={() => clearFilter("state")} className="text-xs text-gray-500 hover:text-gray-700">
-                    Clear
-                  </button>
-                )}
-              </div>
-              <div className="relative">
-                <select
-                  value={filters.state}
-                  onChange={(e) => handleFilterChange("state", e.target.value)}
-                  className="block w-full rounded-md border border-gray-300 py-2 pl-3 pr-10 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                >
-                  <option value="">All States</option>
-                  {australianStates.map((state) => (
-                    <option key={state} value={state}>
-                      {state}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* City filter - only show if state is selected */}
-            {filters.state && (
-              <div className="mb-4">
-                <div className="flex justify-between items-center mb-1">
-                  <label className="block text-sm font-medium text-gray-700">City</label>
-                  {filters.city && (
-                    <button onClick={() => clearFilter("city")} className="text-xs text-gray-500 hover:text-gray-700">
-                      Clear
-                    </button>
-                  )}
-                </div>
-                <div className="relative">
-                  <select
-                    value={filters.city}
-                    onChange={(e) => handleFilterChange("city", e.target.value)}
-                    className="block w-full rounded-md border border-gray-300 py-2 pl-3 pr-10 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  >
-                    <option value="">All Cities</option>
-                    {citiesByState[filters.state]?.map((city) => (
-                      <option key={city} value={city}>
-                        {city}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            )}
-
-            {/* Price range */}
-            <div className="mb-4">
-              <div className="flex justify-between items-center mb-1">
-                <label className="block text-sm font-medium text-gray-700">Price Range</label>
-                {(filters.minPrice || filters.maxPrice) && (
-                  <button
-                    onClick={() => {
-                      clearFilter("minPrice")
-                      clearFilter("maxPrice")
-                    }}
-                    className="text-xs text-gray-500 hover:text-gray-700"
-                  >
-                    Clear
-                  </button>
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  value={filters.minPrice}
-                  onChange={(e) => handleFilterChange("minPrice", e.target.value)}
-                  placeholder="Min"
-                  className="block w-full rounded-md border border-gray-300 py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                />
-                <span className="text-gray-500">-</span>
-                <input
-                  type="number"
-                  value={filters.maxPrice}
-                  onChange={(e) => handleFilterChange("maxPrice", e.target.value)}
-                  placeholder="Max"
-                  className="block w-full rounded-md border border-gray-300 py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-
-            {/* Listing Type */}
-            {filters.category !== "Home Decor" && filters.category !== "Electronics" && (
-              <div className="mb-4">
-                <div className="flex justify-between items-center mb-1">
-                  <label className="block text-sm font-medium text-gray-700">Listing Type</label>
-                  {filters.listingType.length > 0 && (
-                    <button
-                      onClick={() => clearFilter("listingType")}
-                      className="text-xs text-gray-500 hover:text-gray-700"
-                    >
-                      Clear
-                    </button>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  {listingTypes.map((type) => (
-                    <label key={type} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={filters.listingType.includes(type)}
-                        onChange={() => handleFilterChange("listingType", type)}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
-                      />
-                      <span className="ml-2 text-sm text-gray-700">{type}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Rent Type - only show if "Rent" is selected in listing type */}
-            {filters.listingType.includes("rent") && filters.category !== "Home Decor" && filters.category !== "Electronics" && (
-              <div className="mb-4">
-                <div className="flex justify-between items-center mb-1">
-                  <label className="block text-sm font-medium text-gray-700">Rent Type</label>
-                  {filters.rentType.length > 0 && (
-                    <button
-                      onClick={() => clearFilter("rentType")}
-                      className="text-xs text-gray-500 hover:text-gray-700"
-                    >
-                      Clear
-                    </button>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  {rentTypes.map((type) => (
-                    <label key={type} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={filters.rentType.includes(type)}
-                        onChange={() => handleFilterChange("rentType", type)}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
-                      />
-                      <span className="ml-2 text-sm text-gray-700">{type}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Sort options - Desktop only */}
-            <div className="hidden lg:block">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
-              <div className="relative">
-                <select
-                  value={filters.sort}
-                  onChange={(e) => handleFilterChange("sort", e.target.value)}
-                  className="block w-full rounded-md border border-gray-300 py-2 pl-3 pr-10 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                >
-                  {sortOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+          <div className="relative">
+            <select
+              value={filters.sort}
+              onChange={(e) => handleFilterChange("sort", e.target.value)}
+              className="appearance-none pl-3 pr-8 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {sortOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <ArrowUpDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
           </div>
         </div>
 
-        {/* Active filters display */}
-        <div className="flex-1">
-          {isFilterApplied && (
-            <div className="mb-4 flex flex-wrap gap-2 items-center">
-              <span className="text-sm text-gray-500">Active filters:</span>
-
-              {filters.subcategory && (
-                <div className="inline-flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm">
-                  <span className="mr-1">Subcategory: {filters.subcategory}</span>
-                  <button onClick={() => clearFilter("subcategory")} className="text-gray-500 hover:text-gray-700">
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              )}
-
-              {filters.state && (
-                <div className="inline-flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm">
-                  <span className="mr-1">State: {filters.state}</span>
-                  <button onClick={() => clearFilter("state")} className="text-gray-500 hover:text-gray-700">
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              )}
-
-              {filters.city && (
-                <div className="inline-flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm">
-                  <span className="mr-1">City: {filters.city}</span>
-                  <button onClick={() => clearFilter("city")} className="text-gray-500 hover:text-gray-700">
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              )}
-
-              {filters.location && (
-                <div className="inline-flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm">
-                  <span className="mr-1">Location: {filters.location}</span>
-                  <button onClick={() => clearFilter("location")} className="text-gray-500 hover:text-gray-700">
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              )}
-
-              {(filters.minPrice || filters.maxPrice) && (
-                <div className="inline-flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm">
-                  <span className="mr-1">
-                    Price: {filters.minPrice ? `$${filters.minPrice}` : "$0"} -{" "}
-                    {filters.maxPrice ? `$${filters.maxPrice}` : "Any"}
-                  </span>
-                  <button
-                    onClick={() => {
-                      clearFilter("minPrice")
-                      clearFilter("maxPrice")
-                    }}
-                    className="text-gray-500 hover:text-gray-700"
+        {/* Main content with filters */}
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Filters sidebar - Desktop always visible, mobile conditional */}
+          <div className={`lg:w-64 flex-shrink-0 ${showFilters ? "block" : "hidden lg:block"}`}>
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 sticky top-4">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-semibold text-gray-800">Filters</h3>
+                {isFilterApplied && (
+                  <button 
+                    onClick={clearAllFilters} 
+                    className="text-xs bg-gray-900 text-white px-3 py-1.5 rounded-md hover:bg-gray-800 transition-colors"
                   >
-                    <X className="w-3 h-3" />
+                    Clear all
                   </button>
-                </div>
-              )}
+                )}
+              </div>
 
-              {filters.listingType.length > 0 && (
-                <div className="inline-flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm">
-                  <span className="mr-1">Listing: {filters.listingType.join(", ")}</span>
-                  <button onClick={() => clearFilter("listingType")} className="text-gray-500 hover:text-gray-700">
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              )}
-
-              {filters.rentType.length > 0 && (
-                <div className="inline-flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm">
-                  <span className="mr-1">Rent Type: {filters.rentType.join(", ")}</span>
-                  <button onClick={() => clearFilter("rentType")} className="text-gray-500 hover:text-gray-700">
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              )}
-
-              {filters.sort !== "newest" && (
-                <div className="inline-flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm">
-                  <span className="mr-1">
-                    Sort: {sortOptions.find((opt) => opt.value === filters.sort)?.label || filters.sort}
-                  </span>
-                  <button
-                    onClick={() => handleFilterChange("sort", "newest")}
-                    className="text-gray-500 hover:text-gray-700"
+              {/* Category filter */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                <div className="relative">
+                  <select
+                    value={filters.category}
+                    onChange={(e) => handleFilterChange("category", e.target.value)}
+                    className="block w-full rounded-md border border-gray-300 py-2 pl-3 pr-10 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   >
-                    <X className="w-3 h-3" />
-                  </button>
+                    <option value="">All Categories</option>
+                    {Object.keys(categories).map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-              )}
+              </div>
 
-              <button 
-                onClick={clearAllFilters} 
-                className="text-sm bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors"
-              >
-                Clear all filters
-              </button>
-            </div>
-          )}
-
-          {error && currentPage === 1 ? (
-            <div className="text-center py-20">
-              <p className="text-red-500">{error}</p>
-              <button
-                onClick={() => setCurrentPage(1)}
-                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-              >
-                Try Again
-              </button>
-            </div>
-          ) : (
-            <>
-              {products.length === 0 && !loading ? (
-                <div className="text-center py-20">
-                  <p className="text-gray-500">No products found with the selected filters.</p>
-                  {isFilterApplied && (
-                    <button
-                      onClick={clearAllFilters}
-                      className="mt-4 px-6 py-2.5 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium"
+              {/* Subcategory filter - only show if category is selected */}
+              {filters.category && availableSubcategories.length > 0 && (
+                <div className="mb-4">
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="block text-sm font-medium text-gray-700">Subcategory</label>
+                    {filters.subcategory && (
+                      <button
+                        onClick={() => clearFilter("subcategory")}
+                        className="text-xs text-gray-500 hover:text-gray-700"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <select
+                      value={filters.subcategory}
+                      onChange={(e) => handleFilterChange("subcategory", e.target.value)}
+                      className="block w-full rounded-md border border-gray-300 py-2 pl-3 pr-10 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     >
-                      Clear All Filters
+                      <option value="">All Subcategories</option>
+                      {availableSubcategories.map((subcat) => (
+                        <option key={subcat} value={subcat}>
+                          {subcat}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
+
+              {/* State filter */}
+              <div className="mb-4">
+                <div className="flex justify-between items-center mb-1">
+                  <label className="block text-sm font-medium text-gray-700">State</label>
+                  {filters.state && (
+                    <button onClick={() => clearFilter("state")} className="text-xs text-gray-500 hover:text-gray-700">
+                      Clear
                     </button>
                   )}
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  {products.map((item, index) => (
-                    <div key={item.id} ref={index === products.length - 1 ? lastProductElementRef : null}>
-                      <HorizontalProductCard
-                        item={item}
-                        hoveredCard={hoveredCard}
-                        setHoveredCard={setHoveredCard}
-                        likedItems={likedItems}
-                        toggleLike={toggleLike}
-                      />
-                    </div>
-                  ))}
+                <div className="relative">
+                  <select
+                    value={filters.state}
+                    onChange={(e) => handleFilterChange("state", e.target.value)}
+                    className="block w-full rounded-md border border-gray-300 py-2 pl-3 pr-10 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  >
+                    <option value="">All States</option>
+                    {australianStates.map((state) => (
+                      <option key={state} value={state}>
+                        {state}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* City filter - only show if state is selected */}
+              {filters.state && (
+                <div className="mb-4">
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="block text-sm font-medium text-gray-700">City</label>
+                    {filters.city && (
+                      <button onClick={() => clearFilter("city")} className="text-xs text-gray-500 hover:text-gray-700">
+                        Clear
+                      </button>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <select
+                      value={filters.city}
+                      onChange={(e) => handleFilterChange("city", e.target.value)}
+                      className="block w-full rounded-md border border-gray-300 py-2 pl-3 pr-10 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    >
+                      <option value="">All Cities</option>
+                      {citiesByState[filters.state]?.map((city) => (
+                        <option key={city} value={city}>
+                          {city}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               )}
 
-              {loading && (
-                <div className="flex justify-center items-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600"></div>
+              {/* Price range */}
+              <div className="mb-4">
+                <div className="flex justify-between items-center mb-1">
+                  <label className="block text-sm font-medium text-gray-700">Price Range</label>
+                  {(filters.minPrice || filters.maxPrice) && (
+                    <button
+                      onClick={() => {
+                        clearFilter("minPrice")
+                        clearFilter("maxPrice")
+                      }}
+                      className="text-xs text-gray-500 hover:text-gray-700"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    value={filters.minPrice}
+                    onChange={(e) => handleFilterChange("minPrice", e.target.value)}
+                    placeholder="Min"
+                    className="block w-full rounded-md border border-gray-300 py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                  <span className="text-gray-500">-</span>
+                  <input
+                    type="number"
+                    value={filters.maxPrice}
+                    onChange={(e) => handleFilterChange("maxPrice", e.target.value)}
+                    placeholder="Max"
+                    className="block w-full rounded-md border border-gray-300 py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              {/* Listing Type */}
+              {filters.category !== "Home Decor" && filters.category !== "Electronics" && (
+                <div className="mb-4">
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="block text-sm font-medium text-gray-700">Listing Type</label>
+                    {filters.listingType.length > 0 && (
+                      <button
+                        onClick={() => clearFilter("listingType")}
+                        className="text-xs text-gray-500 hover:text-gray-700"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    {listingTypes.map((type) => (
+                      <label key={type} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={filters.listingType.includes(type)}
+                          onChange={() => handleFilterChange("listingType", type)}
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">{type}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
               )}
 
-              {!hasMore && products.length > 0 && (
-                <div className="text-center py-8 text-gray-500">You've reached the end of the list</div>
+              {/* Rent Type - only show if "Rent" is selected in listing type */}
+              {filters.listingType.includes("rent") && filters.category !== "Home Decor" && filters.category !== "Electronics" && (
+                <div className="mb-4">
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="block text-sm font-medium text-gray-700">Rent Type</label>
+                    {filters.rentType.length > 0 && (
+                      <button
+                        onClick={() => clearFilter("rentType")}
+                        className="text-xs text-gray-500 hover:text-gray-700"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    {rentTypes.map((type) => (
+                      <label key={type} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={filters.rentType.includes(type)}
+                          onChange={() => handleFilterChange("rentType", type)}
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">{type}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
               )}
-            </>
-          )}
+
+              {/* Sort options - Desktop only */}
+              <div className="hidden lg:block">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+                <div className="relative">
+                  <select
+                    value={filters.sort}
+                    onChange={(e) => handleFilterChange("sort", e.target.value)}
+                    className="block w-full rounded-md border border-gray-300 py-2 pl-3 pr-10 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  >
+                    {sortOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Active filters display */}
+          <div className="flex-1">
+            {isFilterApplied && (
+              <div className="mb-4 flex flex-wrap gap-2 items-center">
+                <span className="text-sm text-gray-500">Active filters:</span>
+
+                {filters.subcategory && (
+                  <div className="inline-flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm">
+                    <span className="mr-1">Subcategory: {filters.subcategory}</span>
+                    <button onClick={() => clearFilter("subcategory")} className="text-gray-500 hover:text-gray-700">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
+
+                {filters.state && (
+                  <div className="inline-flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm">
+                    <span className="mr-1">State: {filters.state}</span>
+                    <button onClick={() => clearFilter("state")} className="text-gray-500 hover:text-gray-700">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
+
+                {filters.city && (
+                  <div className="inline-flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm">
+                    <span className="mr-1">City: {filters.city}</span>
+                    <button onClick={() => clearFilter("city")} className="text-gray-500 hover:text-gray-700">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
+
+                {filters.location && (
+                  <div className="inline-flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm">
+                    <span className="mr-1">Location: {filters.location}</span>
+                    <button onClick={() => clearFilter("location")} className="text-gray-500 hover:text-gray-700">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
+
+                {(filters.minPrice || filters.maxPrice) && (
+                  <div className="inline-flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm">
+                    <span className="mr-1">
+                      Price: {filters.minPrice ? `$${filters.minPrice}` : "$0"} -{" "}
+                      {filters.maxPrice ? `$${filters.maxPrice}` : "Any"}
+                    </span>
+                    <button
+                      onClick={() => {
+                        clearFilter("minPrice")
+                        clearFilter("maxPrice")
+                      }}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
+
+                {filters.listingType.length > 0 && (
+                  <div className="inline-flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm">
+                    <span className="mr-1">Listing: {filters.listingType.join(", ")}</span>
+                    <button onClick={() => clearFilter("listingType")} className="text-gray-500 hover:text-gray-700">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
+
+                {filters.rentType.length > 0 && (
+                  <div className="inline-flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm">
+                    <span className="mr-1">Rent Type: {filters.rentType.join(", ")}</span>
+                    <button onClick={() => clearFilter("rentType")} className="text-gray-500 hover:text-gray-700">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
+
+                {filters.sort !== "newest" && (
+                  <div className="inline-flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm">
+                    <span className="mr-1">
+                      Sort: {sortOptions.find((opt) => opt.value === filters.sort)?.label || filters.sort}
+                    </span>
+                    <button
+                      onClick={() => handleFilterChange("sort", "newest")}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
+
+                <button 
+                  onClick={clearAllFilters} 
+                  className="text-sm bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors"
+                >
+                  Clear all filters
+                </button>
+              </div>
+            )}
+
+            {error && currentPage === 1 ? (
+              <div className="text-center py-20">
+                <p className="text-red-500">{error}</p>
+                <button
+                  onClick={() => setCurrentPage(1)}
+                  className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  Try Again
+                </button>
+              </div>
+            ) : loading && currentPage === 1 ? (
+              <div className="flex flex-col items-center justify-center py-20">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
+              </div>
+            ) : (
+              <>
+                {products.length === 0 && !loading ? (
+                  <div className="text-center py-20">
+                    <p className="text-gray-500">No products found with the selected filters.</p>
+                    {isFilterApplied && (
+                      <button
+                        onClick={clearAllFilters}
+                        className="mt-4 px-6 py-2.5 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium"
+                      >
+                        Clear All Filters
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {products.map((item, index) => (
+                      <div key={item.id} ref={index === products.length - 1 ? lastProductElementRef : null}>
+                        <HorizontalProductCard
+                          item={item}
+                          hoveredCard={hoveredCard}
+                          setHoveredCard={setHoveredCard}
+                          likedItems={likedItems}
+                          toggleLike={toggleLike}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {loading && currentPage > 1 && (
+                  <div className="flex justify-center items-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900"></div>
+                  </div>
+                )}
+
+                {!hasMore && products.length > 0 && (
+                  <div className="text-center py-8 text-gray-500">You've reached the end of the list</div>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 

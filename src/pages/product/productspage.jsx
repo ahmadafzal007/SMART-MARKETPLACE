@@ -5,7 +5,6 @@ import AllProducts from '../../components/products/allproducts'
 const ProductsPage = () => {
     return (
         <div>
-          <Navbar />
           <AllProducts />
           <Footer />
         </div>
