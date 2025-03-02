@@ -1,175 +1,340 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { Menu, X, Search, ChevronDown, MapPin, Globe, User, MessageSquare, Settings, LogOut, Heart, Package, FileText } from 'lucide-react';
+"use client"
 
-import { selectUser, selectIsAuthenticated } from '../../../store/slices/userSlice';
-import { logoutUser } from '../../../store/thunks/authThunks';
-import LoginModal from '../../registration/registrationCard';
+import { useState, useEffect, useRef } from "react"
+import { useNavigate, useLocation } from "react-router-dom"
+import { useSelector, useDispatch } from "react-redux"
+import { Menu, X, Search, ChevronDown, MapPin, Globe, User, MessageSquare, LogOut, Heart, Package } from "lucide-react"
 
-import CategoriesNav from './categoriesNav';
+import { selectUser, selectIsAuthenticated } from "../../../store/slices/userSlice"
+import { logoutUser } from "../../../store/thunks/authThunks"
+import LoginModal from "../../registration/registrationCard"
+import { getSearchSuggestions } from "../../../api/searchapi"
 
-const Navbar = ({ onLocationChange }) => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState('Australia');
-  const [activeDropdown, setActiveDropdown] = useState(null);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
-  const [unreadMessages, setUnreadMessages] = useState(3);
-  
-  const navigate = useNavigate();
-  const location = useLocation();
-  const dispatch = useDispatch();
-  
+import CategoriesNav from "./categoriesNav"
+
+const Navbar = ({ onLocationChange, onSearch }) => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [selectedLocation, setSelectedLocation] = useState("Australia")
+  const [activeDropdown, setActiveDropdown] = useState(null)
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false)
+  const [unreadMessages, setUnreadMessages] = useState(3)
+
+  // Search state
+  const [searchQuery, setSearchQuery] = useState("")
+  const [suggestions, setSuggestions] = useState([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [isSearching, setIsSearching] = useState(false)
+
+  // Add new state for keyboard navigation
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
+
+  const navigate = useNavigate()
+  const location = useLocation()
+  const dispatch = useDispatch()
+
   // Get user data from Redux store
-  const user = useSelector(selectUser);
-  const isAuthenticated = useSelector(selectIsAuthenticated);
-  
-  const dropdownRef = useRef(null);
-  const userDropdownRef = useRef(null);
+  const user = useSelector(selectUser)
+  const isAuthenticated = useSelector(selectIsAuthenticated)
+
+  const dropdownRef = useRef(null)
+  const userDropdownRef = useRef(null)
+  const searchInputRef = useRef(null)
+  const suggestionsRef = useRef(null)
 
   const australianStates = [
-    { name: 'Australia', icon: <Globe className="h-4 w-4" /> },
-    { name: 'New South Wales', icon: <MapPin className="h-4 w-4" /> },
-    { name: 'Victoria', icon: <MapPin className="h-4 w-4" /> },
-    { name: 'Queensland', icon: <MapPin className="h-4 w-4" /> },
-    { name: 'Western Australia', icon: <MapPin className="h-4 w-4" /> },
-    { name: 'South Australia', icon: <MapPin className="h-4 w-4" /> },
-    { name: 'Tasmania', icon: <MapPin className="h-4 w-4" /> },
-    { name: 'Northern Territory', icon: <MapPin className="h-4 w-4" /> },
-    { name: 'Australian Capital Territory', icon: <MapPin className="h-4 w-4" /> },
-  ];
+    { name: "Australia", icon: <Globe className="h-4 w-4" /> },
+    { name: "New South Wales", icon: <MapPin className="h-4 w-4" /> },
+    { name: "Victoria", icon: <MapPin className="h-4 w-4" /> },
+    { name: "Queensland", icon: <MapPin className="h-4 w-4" /> },
+    { name: "Western Australia", icon: <MapPin className="h-4 w-4" /> },
+    { name: "South Australia", icon: <MapPin className="h-4 w-4" /> },
+    { name: "Tasmania", icon: <MapPin className="h-4 w-4" /> },
+    { name: "Northern Territory", icon: <MapPin className="h-4 w-4" /> },
+    { name: "Australian Capital Territory", icon: <MapPin className="h-4 w-4" /> },
+  ]
 
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setActiveDropdown(null);
+        setActiveDropdown(null)
       }
       if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
-        setIsUserDropdownOpen(false);
+        setIsUserDropdownOpen(false)
+      }
+      if (
+        suggestionsRef.current &&
+        !suggestionsRef.current.contains(event.target) &&
+        searchInputRef.current &&
+        !searchInputRef.current.contains(event.target)
+      ) {
+        setShowSuggestions(false)
       }
     }
-    
+
     const handleResize = () => {
       if (window.innerWidth >= 768) {
-        setIsMobileMenuOpen(false);
+        setIsMobileMenuOpen(false)
       }
-    };
-    
-    window.addEventListener('mousedown', handleClickOutside);
-    window.addEventListener('resize', handleResize);
-    
+    }
+
+    window.addEventListener("mousedown", handleClickOutside)
+    window.addEventListener("resize", handleResize)
+
     return () => {
-      window.removeEventListener('mousedown', handleClickOutside);
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
+      window.removeEventListener("mousedown", handleClickOutside)
+      window.removeEventListener("resize", handleResize)
+    }
+  }, [])
+
+  // Fetch search suggestions when query changes
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (searchQuery.length >= 2) {
+        try {
+          const results = await getSearchSuggestions(searchQuery)
+          if (Array.isArray(results)) {
+            setSuggestions(results)
+            setShowSuggestions(results.length > 0)
+          } else {
+            setSuggestions([])
+            setShowSuggestions(false)
+          }
+        } catch (error) {
+          console.error("Failed to fetch suggestions:", error)
+          setSuggestions([])
+          setShowSuggestions(false)
+        }
+      } else {
+        setSuggestions([])
+        setShowSuggestions(false)
+      }
+    }
+
+    // Debounce the suggestions fetch
+    const timeoutId = setTimeout(() => {
+      fetchSuggestions()
+    }, 300)
+
+    return () => clearTimeout(timeoutId)
+  }, [searchQuery])
+
+  // Handle keyboard navigation
+  const handleKeyDown = (e) => {
+    if (!showSuggestions || suggestions.length === 0) {
+      return;
+    }
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault(); // Prevent cursor from moving
+        setSelectedSuggestionIndex(prev => 
+          prev < suggestions.length - 1 ? prev + 1 : prev
+        );
+        break;
+
+      case 'ArrowUp':
+        e.preventDefault(); // Prevent cursor from moving
+        setSelectedSuggestionIndex(prev => 
+          prev > 0 ? prev - 1 : -1
+        );
+        break;
+
+      case 'Enter':
+        e.preventDefault();
+        if (selectedSuggestionIndex >= 0) {
+          handleSuggestionClick(suggestions[selectedSuggestionIndex]);
+        } else {
+          handleSearch(e);
+        }
+        break;
+
+      case 'Escape':
+        setShowSuggestions(false);
+        setSelectedSuggestionIndex(-1);
+        break;
+
+      case 'Tab':
+        if (showSuggestions) {
+          e.preventDefault();
+          if (e.shiftKey) {
+            // Shift + Tab: Move up
+            setSelectedSuggestionIndex(prev => 
+              prev > 0 ? prev - 1 : suggestions.length - 1
+            );
+          } else {
+            // Tab: Move down
+            setSelectedSuggestionIndex(prev => 
+              prev < suggestions.length - 1 ? prev + 1 : 0
+            );
+          }
+        }
+        break;
+
+      default:
+        break;
+    }
+  };
+
+  // Reset selected index when suggestions change
+  useEffect(() => {
+    setSelectedSuggestionIndex(-1);
+  }, [suggestions]);
 
   const toggleDropdown = (dropdownName) => {
-    setActiveDropdown(activeDropdown === dropdownName ? null : dropdownName);
-  };
+    setActiveDropdown(activeDropdown === dropdownName ? null : dropdownName)
+  }
 
   const handleLoginSuccess = (userData) => {
-    setIsLoginModalOpen(false);
-  };
+    setIsLoginModalOpen(false)
+  }
 
   const handleLogout = () => {
-    dispatch(logoutUser());
-    setIsUserDropdownOpen(false);
-  };
+    dispatch(logoutUser())
+    setIsUserDropdownOpen(false)
+  }
 
   const profileMenuItems = [
-    { 
-      icon: <User className="h-4 w-4" />, 
-      label: 'My Profile',
-      description: 'View and edit your profile',
-      action: () => {} 
+    {
+      icon: <User className="h-4 w-4" />,
+      label: "My Profile",
+      description: "View and edit your profile",
+      action: () => {},
     },
-    { 
-      icon: <Package className="h-4 w-4" />, 
-      label: 'My Listings',
-      description: 'Manage your active listings',
-      action: () => {} 
+    {
+      icon: <Package className="h-4 w-4" />,
+      label: "My Listings",
+      description: "Manage your active listings",
+      action: () => {},
     },
-    { 
-      icon: <Heart className="h-4 w-4" />, 
-      label: 'Saved Items',
-      description: 'View your favorites',
-      action: () => {} 
+    {
+      icon: <Heart className="h-4 w-4" />,
+      label: "Saved Items",
+      description: "View your favorites",
+      action: () => {},
     },
-    { 
-      icon: <LogOut className="h-4 w-4" />, 
-      label: 'Logout',
-      description: 'Sign out of your account',
+    {
+      icon: <LogOut className="h-4 w-4" />,
+      label: "Logout",
+      description: "Sign out of your account",
       action: handleLogout,
-      className: 'text-red-600 hover:bg-red-50' 
-    }
-  ];
+      className: "text-red-600 hover:bg-red-50",
+    },
+  ]
 
   // Render user avatar or fallback to initial
   const renderUserAvatar = () => {
     if (user?.avatar) {
       return (
-        <img 
-          src={user.avatar || "/placeholder.svg"} 
-          alt={user.name} 
+        <img
+          src={user.avatar || "/placeholder.svg"}
+          alt={user.name}
           className="w-8 h-8 rounded-full object-cover shadow-md group-hover:shadow-lg
             transition-shadow duration-200"
         />
-      );
+      )
     }
-    
+
     return (
-      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-black to-gray-800
+      <div
+        className="w-8 h-8 rounded-full bg-gradient-to-br from-black to-gray-800
         flex items-center justify-center text-white font-medium shadow-md group-hover:shadow-lg
-        transition-shadow duration-200">
+        transition-shadow duration-200"
+      >
         {user?.name?.charAt(0).toUpperCase()}
       </div>
-    );
-  };
+    )
+  }
 
   // Render user avatar in dropdown
   const renderUserAvatarLarge = () => {
     if (user?.avatar) {
       return (
-        <img 
-          src={user.avatar || "/placeholder.svg"} 
-          alt={user.name} 
+        <img
+          src={user.avatar || "/placeholder.svg"}
+          alt={user.name}
           className="w-12 h-12 rounded-full object-cover shadow-md
             transition-transform duration-300 group-hover:scale-105"
         />
-      );
+      )
     }
-    
+
     return (
-      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-black to-gray-800
+      <div
+        className="w-12 h-12 rounded-full bg-gradient-to-br from-black to-gray-800
         flex items-center justify-center text-white text-lg font-medium shadow-md
-        transition-transform duration-300 group-hover:scale-105">
+        transition-transform duration-300 group-hover:scale-105"
+      >
         {user?.name?.charAt(0).toUpperCase()}
       </div>
-    );
-  };
+    )
+  }
 
   // Update the location selection logic
   const handleLocationSelect = (state) => {
-    setSelectedLocation(state.name);
-    toggleDropdown('location');
-    
-    const currentPath = location.pathname;
-    
-    if (currentPath.startsWith('/category/')) {
+    setSelectedLocation(state.name)
+    toggleDropdown("location")
+
+    const currentPath = location.pathname
+
+    if (currentPath.startsWith("/category/")) {
       // Emit location change event instead of navigating
-      onLocationChange?.(state.name === 'Australia' ? null : state.name);
+      onLocationChange?.(state.name === "Australia" ? null : state.name)
     } else {
       // If not on category page, use original navigation logic
-      const params = new URLSearchParams();
-      params.set('page', '1');
-      if (state.name !== 'Australia') {
-        params.set('state', state.name);
+      const params = new URLSearchParams()
+      params.set("page", "1")
+      if (state.name !== "Australia") {
+        params.set("state", state.name)
       }
-      navigate(`/category/all?${params.toString()}`);
+      navigate(`/category/all?${params.toString()}`)
     }
-  };
+  }
+
+  // Handle search submission
+  const handleSearch = (e) => {
+    e.preventDefault()
+    if (!searchQuery.trim()) return
+
+    setIsSearching(true)
+    setShowSuggestions(false)
+
+    // Call the onSearch prop to update the parent component
+    if (onSearch) {
+      onSearch(searchQuery.trim())
+    } else {
+      // If no onSearch prop, navigate directly
+      const params = new URLSearchParams()
+      params.set("page", "1")
+      params.set("search", searchQuery.trim())
+      if (selectedLocation !== "Australia") {
+        params.set("state", selectedLocation)
+      }
+      navigate(`/category/all?${params.toString()}`)
+    }
+    
+    setIsSearching(false)
+  }
+
+  // Handle suggestion click
+  const handleSuggestionClick = (suggestion) => {
+    setSearchQuery(suggestion)
+    setShowSuggestions(false)
+
+    // Call the onSearch prop to update the parent component
+    if (onSearch) {
+      onSearch(suggestion)
+    } else {
+      // If no onSearch prop, navigate directly
+      const params = new URLSearchParams()
+      params.set("page", "1")
+      params.set("search", suggestion)
+      if (selectedLocation !== "Australia") {
+        params.set("state", selectedLocation)
+      }
+      navigate(`/category/all?${params.toString()}`)
+    }
+  }
 
   return (
     <>
@@ -177,10 +342,7 @@ const Navbar = ({ onLocationChange }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <div 
-              onClick={() => navigate('/')} 
-              className="flex items-center space-x-3 group cursor-pointer"
-            >
+            <div onClick={() => navigate("/")} className="flex items-center space-x-3 group cursor-pointer">
               <div className="p-1.5 overflow-hidden rounded-xl bg-gradient-to-br from-gray-50 to-gray-100">
                 <img
                   src="/mart.png"
@@ -226,15 +388,19 @@ const Navbar = ({ onLocationChange }) => {
                     </button>
 
                     {isUserDropdownOpen && (
-                      <div className="absolute z-60 right-0 mt-2 w-70 bg-white rounded-2xl shadow-lg border border-gray-200 
-                        overflow-hidden transform transition-all duration-200 ease-out">
+                      <div
+                        className="absolute z-60 right-0 mt-2 w-70 bg-white rounded-2xl shadow-lg border border-gray-200 
+                        overflow-hidden transform transition-all duration-200 ease-out"
+                      >
                         {/* Profile Header */}
                         <div className="px-6 py-5 bg-gradient-to-br from-gray-50 to-gray-100">
                           <div className="flex items-center space-x-4">
                             <div className="relative group">
                               {renderUserAvatarLarge()}
-                              <div className="absolute inset-0 rounded-full bg-white opacity-0 group-hover:opacity-10 
-                                transition-opacity duration-300"></div>
+                              <div
+                                className="absolute inset-0 rounded-full bg-white opacity-0 group-hover:opacity-10 
+                                transition-opacity duration-300"
+                              ></div>
                             </div>
                             <div className="space-y-1">
                               <h3 className="text-sm font-semibold text-gray-900">{user?.name}</h3>
@@ -250,7 +416,7 @@ const Navbar = ({ onLocationChange }) => {
                               key={index}
                               onClick={item.action}
                               className={`w-full flex items-start space-x-3 px-6 py-3 hover:bg-gray-50 
-                                transition-colors ${item.className || 'text-gray-700'}`}
+                                transition-colors ${item.className || "text-gray-700"}`}
                             >
                               <span className="mt-0.5 ">{item.icon}</span>
                               <div className="text-left">
@@ -279,17 +445,19 @@ const Navbar = ({ onLocationChange }) => {
               <button
                 onClick={() => {
                   if (isAuthenticated) {
-                    navigate('/categories');
+                    navigate("/categories")
                   } else {
-                    setIsLoginModalOpen(true);
+                    setIsLoginModalOpen(true)
                   }
                 }}
                 className="group relative px-7 py-2.5 rounded-full bg-white transform 
                   hover:shadow-lg active:scale-95 transition-all duration-200 focus:outline-none 
                   focus:ring-2 focus:ring-gray-800 focus:ring-offset-2"
               >
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900 
-                  animate-gradient"></div>
+                <div
+                  className="absolute inset-0 rounded-full bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900 
+                  animate-gradient"
+                ></div>
                 <div className="absolute inset-[2px] rounded-full bg-white"></div>
                 <div className="relative flex items-center space-x-1">
                   <span className="text-lg font-light leading-none mb-0.5 group-hover:rotate-90 transition-transform duration-300">
@@ -323,7 +491,7 @@ const Navbar = ({ onLocationChange }) => {
               {/* Location Dropdown */}
               <div className="relative w-full md:w-auto" ref={dropdownRef}>
                 <button
-                  onClick={() => toggleDropdown('location')}
+                  onClick={() => toggleDropdown("location")}
                   className="flex items-center justify-between space-x-2 px-3 py-2 rounded-lg 
                     bg-white hover:bg-gray-50 transition-colors duration-200 min-w-[160px] 
                     text-sm border border-gray-200 focus:outline-none focus:ring-2 
@@ -333,13 +501,17 @@ const Navbar = ({ onLocationChange }) => {
                     <MapPin className="h-4 w-4 text-gray-600" />
                     <span className="text-gray-700 font-medium">{selectedLocation}</span>
                   </div>
-                  <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform duration-200 
-                    ${activeDropdown === 'location' ? 'rotate-180' : ''}`} />
+                  <ChevronDown
+                    className={`h-4 w-4 text-gray-500 transition-transform duration-200 
+                    ${activeDropdown === "location" ? "rotate-180" : ""}`}
+                  />
                 </button>
 
-                {activeDropdown === 'location' && (
-                  <div className="absolute top-full left-0 mt-2 w-full md:w-64 rounded-lg bg-white 
-                    shadow-lg border border-gray-200 py-1 z-50 animate-fadeIn">
+                {activeDropdown === "location" && (
+                  <div
+                    className="absolute top-full left-0 mt-2 w-full md:w-64 rounded-lg bg-white 
+                    shadow-lg border border-gray-200 py-1 z-50 animate-fadeIn"
+                  >
                     {australianStates.map((state) => (
                       <button
                         key={state.name}
@@ -356,20 +528,64 @@ const Navbar = ({ onLocationChange }) => {
               </div>
 
               {/* Search Bar */}
-              <div className="flex-1 flex">
-                <div className="relative flex-1">
-                  <input
-                    type="text"
-                    placeholder="Search for anything..."
-                    className="w-full pl-10 pr-4 py-2 text-sm rounded-l-lg border border-r-0 border-gray-200 
-                      focus:border-gray-300 focus:ring-1 focus:ring-gray-300 transition-all duration-200"
-                  />
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                </div>
-                <button className="px-6 py-2 bg-gray-800 text-white rounded-r-lg hover:bg-gray-700 
-                  transition-colors duration-200 flex items-center justify-center">
-                  <Search className="h-4 w-4" />
-                </button>
+              <div className="flex-1 flex relative">
+                <form onSubmit={handleSearch} className="flex-1 flex relative">
+                  <div className="relative flex-1">
+                    <input
+                      ref={searchInputRef}
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onFocus={() => searchQuery.length >= 2 && suggestions.length > 0 && setShowSuggestions(true)}
+                      onKeyDown={handleKeyDown}
+                      placeholder="Search for anything..."
+                      className="w-full pl-10 pr-4 py-2 text-sm rounded-l-lg border border-r-0 border-gray-200 
+                        focus:border-gray-300 focus:ring-1 focus:ring-gray-300 transition-all duration-200"
+                      role="combobox"
+                      aria-expanded={showSuggestions}
+                      aria-controls="search-suggestions"
+                      aria-activedescendant={selectedSuggestionIndex >= 0 ? `suggestion-${selectedSuggestionIndex}` : undefined}
+                    />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+
+                    {/* Search Suggestions */}
+                    {showSuggestions && suggestions.length > 0 && (
+                      <div
+                        ref={suggestionsRef}
+                        className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-60 overflow-y-auto"
+                        role="listbox"
+                        id="search-suggestions"
+                      >
+                        {suggestions.map((suggestion, index) => (
+                          <button
+                            key={index}
+                            onClick={() => handleSuggestionClick(suggestion)}
+                            className={`w-full text-left px-4 py-2.5 text-gray-700 hover:bg-gray-50 
+                              transition-colors duration-200 text-sm border-b border-gray-100 last:border-b-0
+                              ${selectedSuggestionIndex === index ? 'bg-gray-100' : ''}`}
+                            role="option"
+                            id={`suggestion-${index}`}
+                            aria-selected={selectedSuggestionIndex === index}
+                          >
+                            {suggestion}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    type="submit"
+                    className="px-6 py-2 bg-gray-800 text-white rounded-r-lg hover:bg-gray-700 
+                      transition-colors duration-200 flex items-center justify-center"
+                    disabled={isSearching}
+                  >
+                    {isSearching ? (
+                      <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
+                      <Search className="h-4 w-4" />
+                    )}
+                  </button>
+                </form>
               </div>
             </div>
           </div>
@@ -379,7 +595,7 @@ const Navbar = ({ onLocationChange }) => {
       {/* Mobile Menu */}
       <div
         className={`md:hidden fixed top-[60px] left-0 right-0 z-60 transition-all duration-300 ease-in-out ${
-          isMobileMenuOpen ? 'max-h-screen opacity-100 shadow-xl' : 'max-h-0 opacity-0'
+          isMobileMenuOpen ? "max-h-screen opacity-100 shadow-xl" : "max-h-0 opacity-0"
         } overflow-hidden bg-white border-b border-gray-100`}
       >
         <div className="px-4 py-6 space-y-6">
@@ -395,7 +611,7 @@ const Navbar = ({ onLocationChange }) => {
                   <MessageSquare className="h-3 w-3 mr-2" />
                   <span>Chat</span>
                 </button>
-              
+
                 {/* Profile Button */}
                 <button
                   onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
@@ -427,7 +643,7 @@ const Navbar = ({ onLocationChange }) => {
                   <Heart className="h-3 w-3 mr-2" />
                   <span>Items</span>
                 </button>
-            
+
                 {/* Logout Button */}
                 <button
                   onClick={handleLogout}
@@ -439,7 +655,7 @@ const Navbar = ({ onLocationChange }) => {
 
                 {/* SELL Button for logged in users */}
                 <button
-                  onClick={() => navigate('/categories')}
+                  onClick={() => navigate("/categories")}
                   className="w-full px-4 py-3 text-white font-medium rounded-lg bg-gray-800 hover:bg-gray-700 active:bg-gray-900 transition-all duration-200 flex items-center justify-center"
                 >
                   <span className="mr-1">SELL</span>
@@ -457,9 +673,9 @@ const Navbar = ({ onLocationChange }) => {
                 <button
                   onClick={() => {
                     if (isAuthenticated) {
-                      navigate('/categories');
+                      navigate("/categories")
                     } else {
-                      setIsLoginModalOpen(true);
+                      setIsLoginModalOpen(true)
                     }
                   }}
                   className="w-full px-4 py-3 text-white font-medium rounded-lg bg-gray-800 hover:bg-gray-700 active:bg-gray-900 transition-all duration-200 flex items-center justify-center"
@@ -481,7 +697,7 @@ const Navbar = ({ onLocationChange }) => {
       <CategoriesNav />
 
       {/* Login Modal with callback */}
-      <LoginModal 
+      <LoginModal
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
         onLoginSuccess={handleLoginSuccess}
@@ -516,7 +732,8 @@ const Navbar = ({ onLocationChange }) => {
         }
       `}</style>
     </>
-  );
-};
+  )
+}
 
-export default Navbar;
+export default Navbar
+
