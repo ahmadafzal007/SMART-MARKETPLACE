@@ -47,24 +47,24 @@ const ProductCard = ({ item, hoveredCard, setHoveredCard, likedItems, toggleLike
         </div>
         {/* Listing Type Tag - Top Left */}
         {item.listingType && (
-          <div className="absolute top-2 left-2 z-10">
-            <div className="bg-black text-white text-xs px-2 py-1 rounded-md shadow-sm">
+          <div className="absolute top-1.5 left-1.5 z-10">
+            <div className="bg-black text-white text-[10px] px-1.5 py-0.5 rounded">
               {item.listingType === 'rent' ? 'For Rent' : 'For Sale'}
             </div>
           </div>
         )}
         {/* Heart Button - Top Right */}
-        <div className="absolute top-2 right-2">
+        <div className="absolute top-1.5 right-1.5">
           <button
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
               toggleLike(item.title);
             }}
-            className="p-1.5 rounded-full bg-white/90 hover:bg-white shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
+            className="p-1 rounded-full bg-white/90 hover:bg-white shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
           >
             <Heart
-              className={`w-3.5 h-3.5 transition-colors ${
+              className={`w-3 h-3 transition-colors ${
                 likedItems.has(item.title)
                   ? 'text-red-500 fill-current'
                   : 'text-gray-500 group-hover:text-gray-700'
@@ -74,22 +74,22 @@ const ProductCard = ({ item, hoveredCard, setHoveredCard, likedItems, toggleLike
         </div>
       </div>
 
-      <div className="p-3 space-y-2">
+      <div className="p-2 space-y-1">
         <div className="space-y-0.5">
-          <h3 className="font-bold text-base text-gray-800 font-['Inter']">
+          <h3 className="font-bold text-sm text-gray-800 font-['Inter']">
             {priceText}
           </h3>
-          <p className="text-gray-700 text-xs font-medium line-clamp-1">
+          <p className="text-gray-700 text-[11px] font-medium line-clamp-1">
             {item.title}
           </p>
         </div>
-        <div className="flex items-center gap-2 text-[11px] text-gray-500">
+        <div className="flex items-center gap-1.5 text-[10px] text-gray-500">
           <div className="flex items-center">
-            <MapPin className="w-3 h-3 mr-0.5 flex-shrink-0" />
+            <MapPin className="w-2.5 h-2.5 mr-0.5 flex-shrink-0" />
             <span className="truncate">{item.location}</span>
           </div>
           <div className="flex items-center">
-            <Clock className="w-3 h-3 mr-0.5 flex-shrink-0" />
+            <Clock className="w-2.5 h-2.5 mr-0.5 flex-shrink-0" />
             <span>{item.time}</span>
           </div>
         </div>

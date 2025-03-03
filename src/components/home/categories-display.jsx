@@ -147,8 +147,8 @@ const MarketplaceCategories = () => {
 
                 {/* Desktop grid view */}
                 <div className="relative">
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-4 sm:gap-4 hidden sm:grid">
-                    {category.items.slice(0, 4).map((item) => (
+                  <div className="grid sm:grid-cols-3 lg:grid-cols-5 sm:gap-3 hidden sm:grid">
+                    {category.items.slice(0, 5).map((item) => (
                       <ProductCard
                         key={item.id}
                         item={item}
@@ -163,7 +163,7 @@ const MarketplaceCategories = () => {
                   {/* Mobile horizontal scroll view */}
                   <div className="flex gap-3 overflow-x-auto pb-4 sm:hidden -mx-4 px-4 scroll-smooth scrollbar-hide">
                     {category.items.map((item) => (
-                      <div className="w-[280px] flex-shrink-0" key={item.id}>
+                      <div className="w-[240px] flex-shrink-0" key={item.id}>
                         <ProductCard
                           item={item}
                           hoveredCard={hoveredCard}

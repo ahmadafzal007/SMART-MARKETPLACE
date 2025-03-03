@@ -3,8 +3,9 @@
 import { motion } from "framer-motion"
 import { ImageIcon } from "lucide-react"
 
-const AdPreview = ({ formState }) => {
+const AdPreview = ({ formState, formData }) => {
   const { images, selectedState, cities } = formState
+  const { title, price, city } = formData
 
   return (
     <motion.div
@@ -42,14 +43,14 @@ const AdPreview = ({ formState }) => {
         </div>
         <div className="space-y-1.5">
           <h4 className="font-medium truncate text-sm leading-tight">
-            {document.getElementById("title")?.value || "Your ad title will appear here"}
+            {title || "Your ad title will appear here"}
           </h4>
           <div className="flex items-center justify-between text-xs">
             <span className="text-gray-500 truncate max-w-[70%]">
               {selectedState ? `${selectedState}` : "Location"}
-              {cities.length > 0 ? `, ${document.getElementById("city")?.value || "City"}` : ""}
+              {cities.length > 0 ? `, ${city || "City"}` : ""}
             </span>
-            <span className="font-medium tabular-nums">${document.getElementById("price")?.value || "0"}</span>
+            <span className="font-medium tabular-nums">${price || "0"}</span>
           </div>
         </div>
       </div>

@@ -298,7 +298,7 @@ const AdForm = ({ category = "Electronics", subcategory = "Smartphones" }) => {
           </motion.form>
 
           <div className="hidden md:flex flex-col space-y-5">
-            <AdPreview formState={formState} />
+            <AdPreview formState={formState} formData={formData} />
             <TipsSection />
           </div>
         </div>
