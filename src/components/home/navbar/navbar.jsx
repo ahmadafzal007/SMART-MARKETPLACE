@@ -463,7 +463,7 @@ const Navbar = ({ onLocationChange, onSearch }) => {
                   <span className="text-lg font-light leading-none mb-0.5 group-hover:rotate-90 transition-transform duration-300">
                     +
                   </span>
-                  <span className="font-medium text-sm text-gray-800">SELL</span>
+                  <span className="font-medium text-sm text-gray-800">POST</span>
                 </div>
               </button>
             </div>
